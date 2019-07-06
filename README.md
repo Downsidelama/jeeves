@@ -1,6 +1,6 @@
 # Jeeves
 
-Jeeves a build automatization and CI system
+Jeeves is a build automatization and CI system
 
 ## Getting Started
 
@@ -45,6 +45,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+Soon...
