@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/Downsidelama/jeeves.svg?branch=master)](https://travis-ci.com/Downsidelama/jeeves) [![codecov](https://codecov.io/gh/Downsidelama/jeeves/branch/master/graph/badge.svg)](https://codecov.io/gh/Downsidelama/jeeves)
+
 # Jeeves
 
 Jeeves is a build automatization and CI system
