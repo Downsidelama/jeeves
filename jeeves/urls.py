@@ -22,6 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', views.LoginView.as_view(), name='login'),
     #path('register/', views.Re)
-    path('dashboard/', include('dashboard.urls')),
+    path('', include('dashboard.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
