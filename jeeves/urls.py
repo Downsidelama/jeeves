@@ -16,12 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth import views
 from django.urls import path, include, re_path
-from django.views.generic.base import RedirectView
+from django.http import HttpResponse
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', views.LoginView.as_view(), name='login'),
-    #path('register/', views.Re)
     path('', include('dashboard.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
