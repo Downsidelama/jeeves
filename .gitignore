@@ -105,3 +105,6 @@ venv.bak/
 
 #IDEA
 .idea/*
+
+jeeves_temp/*
+*.pem
