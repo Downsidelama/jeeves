@@ -32,13 +32,14 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
+    'pipeline.apps.PipelineConfig',
+    'github_webhook_handler.apps.GithubWebhookHandlerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'github_webhook_handler.apps.GithubWebhookHandlerConfig',
 ]
 
 MIDDLEWARE = [
