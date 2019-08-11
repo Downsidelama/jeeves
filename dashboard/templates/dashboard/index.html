@@ -1,2 +1,13 @@
-{% extends 'dashboard/base.html' %}
+{% extends 'dashboard/info_page_base.html' %}
 {% load static %}
+{% block page_title %}Overview{% endblock page_title %}
+{% block body_content %}
+    <p>Add a pipeline!</p>
+{% endblock body_content %}
+{% block side_links %}
+    <a href="{% url 'dashboard:new_pipeline' %}" class="btn btn-block btn-primary mb-6">
+        <i class="fe fe-plus-circle mr-2"></i>Add new pipeline</a>
+    <hr>
+
+
+{% endblock side_links %}

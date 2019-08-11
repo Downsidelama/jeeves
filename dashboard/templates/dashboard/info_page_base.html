@@ -1,0 +1,27 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block body %}
+    <div class="my-3 my-md-5">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    {% block page_title %}Overwrite me! page_title{% endblock page_title %}
+                </h1>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 order-lg-1 mb-4">
+                    {% block side_links %}Add links maybe? side_links{% endblock side_links %}
+                </div>
+                <div class="col-lg-9">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-wrap p-lg-6">
+                                {% block body_content %}Overwrite me! body_content{% endblock body_content %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

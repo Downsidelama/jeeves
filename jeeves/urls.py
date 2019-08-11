@@ -18,9 +18,11 @@ from django.contrib.auth import views
 from django.urls import path, include, re_path
 from django.http import HttpResponse
 
+app_name = 'jeeves'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', views.LoginView.as_view(), name='login'),
+    path('event_handler', include('github_webhook_handler.urls'), name='event_handler'),
     path('', include('dashboard.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]

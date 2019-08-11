@@ -6,3 +6,8 @@ from django.shortcuts import render
 def index(request):
     context = {}
     return render(request, 'dashboard/index.html', context=context)
+
+
+@login_required
+def add_new_pipeline(request):
+    return render(request, 'dashboard/add_new_pipeline.html')
