@@ -1,0 +1,86 @@
+{% extends 'dashboard/info_page_base.html' %}
+{% load static %}
+{% block page_title %}Add new pipeline{% endblock page_title %}
+{% block side_links %}
+    <div class="list-group list-group-transparent mb-0">
+        <a href="#" class="list-group-item list-group-item-action active"><span class="icon mr-3"><i
+                class="fe fe-flag"></i></span>Documentation</a>
+    </div>
+{% endblock side_links %}
+{% block body_content %}
+    {% for error in form.non_field_errors %}
+        {{ error }}
+    {% endfor %}
+    <form method="post" action="" name="new-pipeline-form" id="new-pipeline-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            {% for error in form.name.errors %}
+                <div class="alert alert-danger" role="alert">
+                {{ error }}
+                </div>
+            {% endfor %}
+            <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+            <input type="text" class="form-control" name="{{ form.name.name }}" placeholder="Name.."
+                   id="{{ form.name.id_for_label }}"
+                   maxlength="255" value="{{ form.name.value }}">
+        </div>
+        <div class="form-group">
+            {% for error in form.description.errors %}
+                <div class="alert alert-danger" role="alert">
+                {{ error }}
+                </div>
+            {% endfor %}
+            <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
+            <textarea class="form-control" name="{{ form.description.name }}" id="{{ form.description.id_for_label }}" rows="6"
+                      maxlength="1000"
+                      placeholder="">{{ form.description.value }}</textarea>
+        </div>
+        <div class="form-group">
+            {% for error in form.repo_url.errors %}
+                <div class="alert alert-danger" role="alert">
+                {{ error }}
+                </div>
+            {% endfor %}
+            <label class="form-label" for="{{ form.repo_url.id_for_label }}">Git repository URL</label>
+            <input type="text" class="form-control" name="{{ form.repo_url.name }}" placeholder="Git repository URL"
+                   maxlength="500"
+                   id="{{ form.repo_url.id_for_label }}" value="{{ form.repo_url.value }}"
+                   style="background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%; cursor: auto;">
+
+        </div>
+
+        <div class="form-group">
+            {% for error in form.script.errors %}
+                <div class="alert alert-danger" role="alert">
+                {{ error }}
+                </div>
+            {% endfor %}
+            <label class="form-label" for="{{ form.script.id_for_label }}">Pipeline script</label>
+            <textarea class="form-control" name="{{ form.script.name }}" id="{{ form.script.id_for_label }}" rows="6" maxlength="5000"
+                      placeholder="" >{{ form.script.value }}</textarea>
+        </div>
+        <div class="card-footer text-right">
+            <div class="d-flex">
+                <a href="javascript:document.getElementById('new-pipeline-form').reset()"
+                   class="btn btn-link">Cancel</a>
+                <button type="submit" class="btn btn-primary ml-auto">Send data</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- CodeMirror dependencies -->
+    {#    <script src="{% static 'dashboard/thirdparty/codemirror/lib/codemirror.js' %}"></script>#}
+    <link href="{% static 'dashboard/thirdparty/codemirror/lib/codemirror.css' %}" rel="stylesheet"/>
+    {#    <script src="{% static 'dashboard/thirdparty/codemirror/mode/javascript/javascript.js' %}"></script>#}
+    <script>
+        require(["thirdparty/codemirror/lib/codemirror", "thirdparty/codemirror/mode/yaml/yaml"], function (CodeMirror) {
+            CodeMirror.fromTextArea(document.getElementById("{{ form.script.id_for_label }}"), {
+                lineNumbers: true,
+                mode: "yaml"
+            });
+        });
+        {#let textArea = document.getElementById("pipeline-script");#}
+        {#let codeEditor = CodeMirror.fromTextArea(textArea);#}
+    </script>
+{% endblock body_content %}

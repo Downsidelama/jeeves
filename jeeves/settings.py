@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',
-    'pipeline.apps.PipelineConfig',
+    # 'pipeline.apps.PipelineConfig',
     'github_webhook_handler.apps.GithubWebhookHandlerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
