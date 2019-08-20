@@ -1,4 +1,3 @@
 PyJWT
 pygithub
-dotenv
 Django==2.2.3
