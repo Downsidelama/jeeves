@@ -1,3 +1,6 @@
 PyJWT
 pygithub
+python-dotenv
+github3
 Django==2.2.3
+selenium
