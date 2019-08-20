@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import UpdateView, CreateView
 
@@ -26,11 +26,13 @@ class PipeLineCreateView(View):
 
     def post(self, request):
         form = PipeLineModelForm(request.POST or None)
+        context = {'form': form}
         if form.is_valid():
             obj = form.save(commit=False)
             obj.user = request.user
             obj.save()
-        return render(request, 'dashboard/pipeline_form.html')
+            return redirect(obj.get_absolute_url())
+        return render(request, 'dashboard/pipeline_form.html', context)
 
 
 class PipeLineCreate(CreateView):

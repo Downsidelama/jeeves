@@ -8,7 +8,7 @@ class PipeLine(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(default="")
     script = models.TextField(default="", blank=True)
-    repo_url = models.TextField(default="")
+    repo_url = models.URLField(default="")
 
     def get_absolute_url(self):
         return reverse('dashboard:view_pipeline', kwargs={'pk': self.pk})
