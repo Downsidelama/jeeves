@@ -25,4 +25,5 @@ urlpatterns = [
     path('event_handler', include('github_webhook_handler.urls'), name='event_handler'),
     path('', include('dashboard.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('pipelinehandler/', include('pipelinehandler.urls'), name='pipelinehandler'),
 ]

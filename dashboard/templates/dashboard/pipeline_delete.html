@@ -1,0 +1,10 @@
+{% extends 'dashboard/base.html' %}
+{% block body %}
+    <div class="col-6 mx-auto">
+        <h2>Are you sure you want to delete: {{ pipeline.name }}?</h2>
+        <form method="POST" action="">
+            <input type="submit" class="btn btn-danger" value="Yes">{% csrf_token %}
+            <a href="{{ pipeline.get_absolute_url }}"><button type="button" class="btn btn-green">No</button></a>
+        </form>
+    </div>
+{% endblock %}

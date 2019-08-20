@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.views import View
 from django.views.generic import UpdateView, CreateView
 
@@ -19,10 +20,9 @@ def add_new_pipeline(request):
     return render(request, 'dashboard/pipeline_form.html')
 
 
-class IndexView(View, LoginRequiredMixin):
+class IndexView(LoginRequiredMixin, View):
     def get(self, request):
         pipelines = PipeLine.objects.filter(user=request.user)
-        print(pipelines.count())
         context = {'pipelines': pipelines}
         return render(request, 'dashboard/index.html', context)
 
@@ -60,9 +60,25 @@ class PipeLineUpdate(UpdateView):
 
 class PipeLineDetailsView(View, LoginRequiredMixin):
     def get(self, request, pk):
-        pipeline = PipeLine.objects.get(pk=pk)
+        pipeline = get_object_or_404(PipeLine, pk=pk)
         context = {
             'pipeline': pipeline
         }
         print(pipeline)
         return render(request, 'dashboard/pipeline_view.html', context)
+
+
+class PipeLineDeleteView(View, LoginRequiredMixin):
+    def get(self, request, pk):
+        pipeline = get_object_or_404(PipeLine, pk=pk, user=request.user)
+        if pipeline:
+            context = {'pipeline': pipeline}
+            return render(request, 'dashboard/pipeline_delete.html', context=context)
+        else:
+            return redirect(reverse('dashboard:index'))
+
+    def post(self, request, pk):
+        pipeline = get_object_or_404(PipeLine, pk=pk, user=request.user)
+        if pipeline:
+            pipeline.delete()
+        return redirect(reverse('dashboard:index'))
