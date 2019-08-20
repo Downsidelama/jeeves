@@ -26,6 +26,7 @@ class IndexView(View, LoginRequiredMixin):
         context = {'pipelines': pipelines}
         return render(request, 'dashboard/index.html', context)
 
+
 class PipeLineCreateView(View, LoginRequiredMixin):
     def get(self, request):
         form = PipeLineModelForm()
@@ -55,3 +56,13 @@ class PipeLineCreate(CreateView):
 class PipeLineUpdate(UpdateView):
     model = PipeLine
     fields = ['name', 'description', 'script', 'repo_url']
+
+
+class PipeLineDetailsView(View, LoginRequiredMixin):
+    def get(self, request, pk):
+        pipeline = PipeLine.objects.get(pk=pk)
+        context = {
+            'pipeline': pipeline
+        }
+        print(pipeline)
+        return render(request, 'dashboard/pipeline_view.html', context)
