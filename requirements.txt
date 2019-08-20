@@ -1,6 +1,6 @@
 PyJWT
 pygithub
 python-dotenv
-github3
+github3.py
 Django==2.2.3
 selenium
