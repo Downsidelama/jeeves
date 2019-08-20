@@ -16,6 +16,10 @@ class PipeLineModelForm(forms.ModelForm):
         'class': 'form-control',
     }))
 
+    script = forms.CharField(required=False, widget=forms.Textarea(attrs={
+        'novalidate': '',
+    }))
+
     class Meta:
         model = PipeLine
         fields = ['name', 'description', 'repo_url', 'script']

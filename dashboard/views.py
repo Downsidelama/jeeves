@@ -25,6 +25,11 @@ class PipeLineCreateView(View):
         return render(request, 'dashboard/pipeline_form.html', context)
 
     def post(self, request):
+        form = PipeLineModelForm(request.POST or None)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.save()
         return render(request, 'dashboard/pipeline_form.html')
 
 

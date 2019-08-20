@@ -7,7 +7,7 @@ class PipeLine(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField(default="")
-    script = models.TextField(default="")
+    script = models.TextField(default="", blank=True)
     repo_url = models.TextField(default="")
 
     def get_absolute_url(self):
