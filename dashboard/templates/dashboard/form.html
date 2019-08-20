@@ -1,0 +1,19 @@
+{% load static %}
+<form method="POST" action=".">
+    {% for field in form %}
+        <div class="form-group">
+            {% if field.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ field.errors }}
+                </div>
+            {% endif %}
+            <label for="{{ field.name }}" class="form-label">{{ field.label }}</label>
+            {{ field }}
+        </div>
+    {% endfor %}
+    <div class="card-footer text-right">
+        <div class="d-flex">
+            <button type="submit" class="btn btn-primary ml-auto">Send</button>
+        </div>
+    </div>
+</form>
