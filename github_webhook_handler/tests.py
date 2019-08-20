@@ -31,4 +31,5 @@ class GithubWebhookHandlerTest(TestCase):
 
     def test_push_event_returns_correct_response(self):
         response = self.client.get('/event_handler', **{'X-GitHub-Event': 'push'})
-        self.assertEqual({}, self.parse_json_string(response.content.decode()))
+        self.assertEqual({'status': 'error', 'message': 'Invalid request.'},
+                         self.parse_json_string(response.content.decode()))
