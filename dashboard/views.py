@@ -1,7 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.views import View
 from django.views.generic import UpdateView, CreateView
 
+from dashboard.forms import PipeLineModelForm
 from dashboard.models import PipeLine
 
 
@@ -14,6 +16,16 @@ def index(request):
 @login_required
 def add_new_pipeline(request):
     return render(request, 'dashboard/pipeline_form.html')
+
+
+class PipeLineCreateView(View):
+    def get(self, request):
+        form = PipeLineModelForm()
+        context = {'form': form}
+        return render(request, 'dashboard/pipeline_form.html', context)
+
+    def post(self, request):
+        return render(request, 'dashboard/pipeline_form.html')
 
 
 class PipeLineCreate(CreateView):
