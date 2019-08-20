@@ -7,5 +7,18 @@
     <h5>Repository URL</h5>
     <p>{{ pipeline.repo_url }}</p>
     <h5>Pipeline script</h5>
-    <p>{{ pipeline.script }}</p>
+    <textarea name="pipeline-script" id="pipeline-script">{{ pipeline.script }}</textarea>
+
+
+    <!-- CodeMirror dependencies -->
+    <link href="{% static 'dashboard/thirdparty/codemirror/lib/codemirror.css' %}" rel="stylesheet"/>
+    <script>
+        require(["thirdparty/codemirror/lib/codemirror", "thirdparty/codemirror/mode/yaml/yaml"], function (CodeMirror) {
+            CodeMirror.fromTextArea(document.getElementById("pipeline-script"), {
+                lineNumbers: true,
+                mode: "yaml",
+                readOnlye: true,
+            });
+        });
+    </script>
 {% endblock %}
