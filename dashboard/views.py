@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import UpdateView, CreateView
@@ -18,7 +19,14 @@ def add_new_pipeline(request):
     return render(request, 'dashboard/pipeline_form.html')
 
 
-class PipeLineCreateView(View):
+class IndexView(View, LoginRequiredMixin):
+    def get(self, request):
+        pipelines = PipeLine.objects.filter(user=request.user)
+        print(pipelines.count())
+        context = {'pipelines': pipelines}
+        return render(request, 'dashboard/index.html', context)
+
+class PipeLineCreateView(View, LoginRequiredMixin):
     def get(self, request):
         form = PipeLineModelForm()
         context = {'form': form}

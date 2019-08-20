@@ -1,0 +1,9 @@
+<div class="card">
+    <div class="card-header">
+        <div class="card-status bg-green"></div>
+        <h3 class="card-title"><a href="{{ pipeline.get_absolute_url }}">{{ pipeline.name }}</a></h3>
+    </div>
+    <div class="card-body">
+        {{ pipeline.description|truncatewords:10 }}
+    </div>
+</div>

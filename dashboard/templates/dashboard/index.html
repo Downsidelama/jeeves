@@ -2,7 +2,13 @@
 {% load static %}
 {% block page_title %}Overview{% endblock page_title %}
 {% block body_content %}
+    {% if pipelines %}
+        {% for pipeline in pipelines %}
+            {% include 'dashboard/pipeline-card.html' with pipeline=pipeline %}
+        {% endfor %}
+    {% else %}
     <p>Add a pipeline!</p>
+    {% endif %}
 {% endblock body_content %}
 {% block side_links %}
     <a href="{% url 'dashboard:new_pipeline' %}" class="btn btn-block btn-primary mb-6">
