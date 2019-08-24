@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'dashboard',
     'github_webhook_handler',
     'pipelinehandler',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = '/'
+AUTH_USER_MODEL = 'users.CustomUser'

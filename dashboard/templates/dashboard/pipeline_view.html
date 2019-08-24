@@ -24,7 +24,7 @@
 {% endblock %}
 {% block side_links %}
     {% if request.user == pipeline.user %}
-        <a href="{% url 'pipelinehandler:dashboard-handler' %}" class="btn btn-block btn-primary mb-6">
+        <a href="{% url 'pipelinehandler:dashboard-handler' %}" class="btn btn-block btn-green mb-6">
             <i class="fe fe-play-circle mr-2"></i>Start pipeline</a>
         <a href="{{ pipeline.get_absolute_url }}delete" class="btn btn-block btn-danger mb-6">
             <i class="fe fe-trash-2 mr-2"></i>Delete pipeline</a>

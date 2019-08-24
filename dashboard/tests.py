@@ -40,6 +40,6 @@ class TestViews(TestCase):
         self.login()
         user = get_user_model().objects.all().first()
         pipeline = PipeLine.objects.create(user=user, name="TEST", description="DESC", repo_url="https://google.com/",
-                                script="test")
+                                           script="test")
         response = self.client.get(pipeline.get_absolute_url())
         self.assertContains(response, 'DESC')
