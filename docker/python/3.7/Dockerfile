@@ -6,6 +6,8 @@
 
 FROM alpine:3.9
 
+RUN apk add --no-cache git
+
 # ensure local python is preferred over distribution python
 ENV PATH /usr/local/bin:$PATH
 

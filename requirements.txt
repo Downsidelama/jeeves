@@ -4,3 +4,4 @@ python-dotenv
 github3.py
 Django==2.2.4
 selenium
+pyyaml
