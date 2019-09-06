@@ -11,12 +11,13 @@ class PipeLineCommandGenerator:
         self.command = self._generate_command()
 
     def _generate_command(self):
-        uid = uuid.uuid4()
+        uid = str(uuid.uuid4())
         language = self.parsed_script['language']
         version = self.parsed_script[language][0] + '-alpine'  # TODO: support more
         commands_list = self._generate_pre_commands() + self.parsed_script['script']
         commands = ' && '.join(commands_list)
-        command = f"docker run --name \"{uid}\" -it --rm {language}:{version} /bin/sh -c \"{commands}\""
+        command = f"docker run --name {uid} -it --rm {language}:{version} /bin/sh -c".split(' ')
+        command.append(commands)
         return command
 
     def get_command(self):
