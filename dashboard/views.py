@@ -34,6 +34,8 @@ class PipeLineCreateView(View, LoginRequiredMixin):
 class PipeLineUpdateView(View, LoginRequiredMixin):
     def get(self, request, pk):
         model = get_object_or_404(PipeLine, pk=pk)
+        if request.user != model.user:
+            return redirect(reverse('dashboard:index'))
         form = PipeLineModelForm(instance=model)
         context = {'form': form, 'title': 'Edit {}'.format(model.name)}
         return render(request, 'dashboard/pipeline_form.html', context)
