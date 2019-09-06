@@ -1,4 +1,6 @@
 import subprocess
+import threading
+import uuid
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -22,12 +24,13 @@ class DashboardPipeLineHandlerView(View):
         command_generator = PipeLineCommandGenerator(parsed_script=script, repository=pipeline.repo_url)
 
         command = command_generator.get_command()
-        print(command)
-        with subprocess.Popen(command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE) as process:
-            for line in process.stdout:
-                print(line.decode(), end='')
-
-            process.wait()
-
+        docker_thread = threading.Thread(target=self.run_docker_process, args=(command,))
+        docker_thread.start()
 
         return HttpResponse(command)
+
+    def run_docker_process(self, command):
+        with open('C:\\docker_logs\\{}.log'.format(uuid.uuid4()), 'w+') as output:  # TODO: make it platform independent
+            with subprocess.Popen(command, stderr=subprocess.STDOUT, stdout=output) as process:
+
+                process.wait()
