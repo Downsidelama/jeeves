@@ -10,8 +10,7 @@ python:
 
 # setup environment
 env:
-  global:
-    - MOZ_HEADLESS=1
+- MOZ_HEADLESS=1
 - DJANGO_VERSION=2.2
 
 # install dependencies
