@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.views import View
 
 from dashboard.forms import PipeLineModelForm
-from dashboard.models import PipeLine
+from dashboard.models import PipeLine, PipeLineOutput
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -63,7 +63,6 @@ class PipeLineDetailsView(View, LoginRequiredMixin):
         context = {
             'pipeline': pipeline
         }
-        print(pipeline)
         return render(request, 'dashboard/pipeline_view.html', context)
 
 
@@ -81,3 +80,13 @@ class PipeLineDeleteView(View, LoginRequiredMixin):
         if pipeline:
             pipeline.delete()
         return redirect(reverse('dashboard:index'))
+
+
+class PipeLineOutputView(View, LoginRequiredMixin):
+    def get(self, request, pk, build_pk):
+        context = {}
+        pipeline_output = get_object_or_404(PipeLineOutput, pk=build_pk, pipeline=pk)
+        pipeline = get_object_or_404(PipeLine, pk=pk)
+        context['pipeline'] = pipeline
+        context['pipeline_output'] = pipeline_output
+        return render(request, 'dashboard/pipeline_output_view.html', context=context)

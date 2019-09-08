@@ -1,0 +1,30 @@
+{% extends 'dashboard/info_page_base.html' %}
+{% load static %}
+{% block title %}Jeeves - {{ pipeline.name }}{% endblock %}
+{% block page_title %}{{ pipeline.name }} - Run results{% endblock %}
+{% block body_content %}
+    <h5>Pipeline name</h5>
+    <p>{{ pipeline.name }}</p>
+    <h5>Results</h5>
+    <p>{{ pipeline_output.results }}</p>
+    <h5>Log</h5>
+    <textarea name="pipeline-output-log" id="pipeline-output-log">{{ pipeline_output.log }}</textarea>
+
+
+    <!-- CodeMirror dependencies -->
+    <link href="{% static 'dashboard/thirdparty/codemirror/lib/codemirror.css' %}" rel="stylesheet"/>
+    <script>
+        require(["thirdparty/codemirror/lib/codemirror", "thirdparty/codemirror/mode/yaml/yaml"], function (CodeMirror) {
+            CodeMirror.fromTextArea(document.getElementById("pipeline-output-log"), {
+                lineNumbers: true,
+                mode: "yaml",
+                readOnly: true,
+            });
+        });
+    </script>
+{% endblock %}
+{% block side_links %}
+    <a href="{{ pipeline.get_absolute_url }}" class="btn btn-blue btn-block mb-6">
+        <i class="fe fe-edit mr-2"></i>Back to pipeline</a>
+    <hr>
+{% endblock %}
