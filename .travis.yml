@@ -12,7 +12,6 @@ python:
 
 # setup environment
 env:
-- MOZ_HEADLESS=1
 - DJANGO_VERSION=2.2
 
 before_install:
@@ -28,6 +27,7 @@ install:
 
 # run test scripts
 script:
+- export MOZ_HEADLESS=1
 - coverage run --source='.' manage.py test
 
 # Push the results back to codecov
