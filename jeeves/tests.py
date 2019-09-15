@@ -64,4 +64,4 @@ script:
         start_pipeline_button = self.browser.find_element_by_link_text('Start pipeline')
         start_pipeline_button.click()
 
-        self.fail('Finish the test')
+        
