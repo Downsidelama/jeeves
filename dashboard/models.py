@@ -15,3 +15,7 @@ class PipeLine(models.Model):
 
     def get_absolute_url(self):
         return reverse('dashboard:view_pipeline', kwargs={'pk': self.pk})
+
+
+class PipeLineResults(models.Model):
+    pass
