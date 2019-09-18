@@ -25,18 +25,42 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url)
 
         self.assertIn('Jeeves', self.browser.title)
+
+        # Log in
         username_input = self.browser.find_element_by_id('username')
-        username_input.send_keys('root')
+        username_input.send_keys(TEST_USERNAME)
         password_input = self.browser.find_element_by_id('password')
-        password_input.send_keys('a')
+        password_input.send_keys(TEST_PASSWORD)
         password_input.send_keys(Keys.ENTER)
 
+        # I should be logged in
         spans = self.browser.find_elements_by_class_name('text-default')
         self.assertIn('root', [span.text for span in spans])
 
+        # I want to add a new pipeline
         new_pipeline_button = self.browser.find_element_by_link_text("Add new pipeline")
         new_pipeline_button.click()
 
+        add_pipeline_url = self.browser.current_url
+
+        # Incorrect form
+        name = self.browser.find_element_by_id('id_name')
+        name.send_keys('Jeeves test CI')
+
+        description = self.browser.find_element_by_id('id_description')
+        description.send_keys('This is a description')
+
+        repo_url = self.browser.find_element_by_id('id_repo_url')
+        repo_url.send_keys('a')
+
+        send_button = self.browser.find_element_by_tag_name('button')
+        send_button.click()
+
+        self.assertTrue('Enter a valid URL.' in self.browser.page_source)
+
+        self.browser.get(add_pipeline_url)
+
+        # Fill in the fields
         name = self.browser.find_element_by_id('id_name')
         name.send_keys('Jeeves test CI')
 
@@ -63,5 +87,3 @@ script:
 
         start_pipeline_button = self.browser.find_element_by_link_text('Start pipeline')
         start_pipeline_button.click()
-
-        
