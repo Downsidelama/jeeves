@@ -4,7 +4,8 @@ from django.urls import reverse
 from django.views import View
 
 from dashboard.forms import PipeLineModelForm
-from dashboard.models import PipeLine
+from dashboard.models import PipeLine, PipeLineResult
+from dashboard.pipeline_status import PipeLineStatus
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -60,10 +61,11 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
 class PipeLineDetailsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
+        running_pipelines = PipeLineResult.objects.filter(pipeline=pk, status=PipeLineStatus.IN_PROGRESS.value)
         context = {
-            'pipeline': pipeline
+            'pipeline': pipeline,
+            'running_pipelines': running_pipelines
         }
-        print(pipeline)
         return render(request, 'dashboard/pipeline_view.html', context)
 
 

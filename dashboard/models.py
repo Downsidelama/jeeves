@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
+from dashboard.pipeline_status import PipeLineStatus
 from jeeves import settings
 
 User = settings.AUTH_USER_MODEL
@@ -17,5 +18,10 @@ class PipeLine(models.Model):
         return reverse('dashboard:view_pipeline', kwargs={'pk': self.pk})
 
 
-class PipeLineResults(models.Model):
-    pass
+class PipeLineResult(models.Model):
+    pipeline = models.ForeignKey(PipeLine, on_delete=models.DO_NOTHING, default=1)
+    status = models.IntegerField(default=PipeLineStatus.IN_PROGRESS.value)
+    log = models.TextField(default="")
+    config = models.TextField(default="")
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)

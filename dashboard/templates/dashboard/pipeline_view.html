@@ -32,4 +32,7 @@
             <i class="fe fe-trash-2 mr-2"></i>Delete pipeline</a>
     {% endif %}
     <hr>
+    {% for running_pipeline in running_pipelines %}
+        {{ running_pipeline.pk }} - master
+    {% endfor %}
 {% endblock %}
