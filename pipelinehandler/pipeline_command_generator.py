@@ -8,20 +8,23 @@ class PipeLineCommandGenerator:
         self.parsed_script = parsed_script
         self.repository = repository
         self.branch = branch
-        self.command = self._generate_command()
+        self.commands = self._generate_command()
 
     def _generate_command(self):
-        uid = str(uuid.uuid4())
+        cmds = []
         language = self.parsed_script['language']
-        version = self.parsed_script[language][0] + '-alpine'  # TODO: support more
-        commands_list = self._generate_pre_commands() + self.parsed_script['script']
-        commands = ' && '.join(commands_list)
-        command = f"docker run --name {uid} -it --rm {language}:{version} /bin/sh -c".split(' ')
-        command.append(commands)
-        return command
+        for current_version in self.parsed_script[language]:
+            uid = str(uuid.uuid4())
+            version = current_version+ '-alpine'
+            commands_list = self._generate_pre_commands() + self.parsed_script['script']
+            commands = ' && '.join(commands_list)
+            command = f"docker run --name {uid} -it --rm {language}:{version} /bin/sh -c".split(' ')
+            command.append(commands)
+            cmds.append(command)
+        return cmds
 
-    def get_command(self):
-        return self.command
+    def get_commands(self):
+        return self.commands
 
     def _generate_pre_commands(self):
         folder = self.repository.split('/')[-1]

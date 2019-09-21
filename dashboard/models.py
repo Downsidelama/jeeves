@@ -19,7 +19,10 @@ class PipeLine(models.Model):
 
 
 class PipeLineResult(models.Model):
-    pipeline = models.ForeignKey(PipeLine, on_delete=models.DO_NOTHING, default=1)
+    pipeline = models.ForeignKey(PipeLine, on_delete=models.CASCADE, default=1)
+    version = models.IntegerField(default=1)
+    subversion = models.IntegerField(default=1)
+    command = models.TextField(default="")
     status = models.IntegerField(default=PipeLineStatus.IN_PROGRESS.value)
     log = models.TextField(default="")
     config = models.TextField(default="")

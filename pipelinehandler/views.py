@@ -9,6 +9,7 @@ from django.views import View
 
 from dashboard.models import PipeLine, PipeLineResult
 from dashboard.pipeline_status import PipeLineStatus
+from jeeves import settings
 from pipelinehandler.pipeline_command_generator import PipeLineCommandGenerator
 from pipelinehandler.pipeline_script_parser import PipeLineScriptParser
 
@@ -24,23 +25,32 @@ class DashboardPipeLineHandlerView(View):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         script = PipeLineScriptParser().parse(pipeline.script)
         command_generator = PipeLineCommandGenerator(parsed_script=script, repository=pipeline.repo_url)
-        pipeline_results = PipeLineResult.objects.create()
-        pipeline_results.pipeline = pipeline
-        pipeline_results.config = pipeline.script
-        pipeline_results.status = PipeLineStatus.IN_PROGRESS.value
-        pipeline_results.save()
+        commands = command_generator.get_commands()
+        last_results = PipeLineResult.objects.filter(pipeline=pipeline).last()
+        version = last_results.version + 1 if last_results else 1
 
-        command = command_generator.get_command()
-        docker_thread = threading.Thread(target=self.run_docker_process, args=(command, pipeline_results))
-        docker_thread.start()
+        for subversion, command in enumerate(commands):
+            self.create_entry_and_start_pipeline(command, pipeline, version, subversion)
 
         return redirect(pipeline)
 
+    def create_entry_and_start_pipeline(self, command, pipeline, version, subversion):
+        pipeline_results = PipeLineResult.objects.create()
+        pipeline_results.version = version
+        pipeline_results.subversion = subversion
+        pipeline_results.pipeline = pipeline
+        pipeline_results.config = pipeline.script
+        pipeline_results.command = command
+        pipeline_results.status = PipeLineStatus.IN_PROGRESS.value
+        pipeline_results.save()
+        docker_thread = threading.Thread(target=self.run_docker_process, args=(command, pipeline_results))
+        docker_thread.start()
+
     def run_docker_process(self, command, pipeline_results: PipeLineResult):
-        output_file_path = "C:\\docker_logs\\"
+        output_file_path = os.path.join(settings.BASE_DIR, 'logs')
         output_file_name = "{}.log".format(uuid.uuid4())
 
-        with open(os.path.join(output_file_path, output_file_name), 'w+') as output:  # TODO: make it platform independent
+        with open(os.path.join(output_file_path, output_file_name), 'w+') as output:
             with subprocess.Popen(command, stderr=subprocess.STDOUT, stdout=output) as process:
 
                 process.wait()

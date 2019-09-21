@@ -33,6 +33,8 @@
     {% endif %}
     <hr>
     {% for running_pipeline in running_pipelines %}
-        {{ running_pipeline.pk }} - master
+        {% include 'dashboard/pipeline_build_card.html' with build_number=running_pipeline.version subversion=running_pipeline.subversion %}
     {% endfor %}
+    <a href="#" class="btn btn-block btn-green mb-6">
+        <i class="fe fe-info mr-2"></i>View all build</a>
 {% endblock %}
