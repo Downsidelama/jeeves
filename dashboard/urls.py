@@ -8,4 +8,5 @@ urlpatterns = [
     path('pipeline/<int:pk>/', views.PipeLineDetailsView.as_view(), name='view_pipeline'),
     path('pipeline/<int:pk>/delete/', views.PipeLineDeleteView.as_view(), name='delete_pipeline'),
     path('pipeline/<int:pk>/edit/', views.PipeLineUpdateView.as_view(), name='update_pipeline'),
+    path('pipeline/<int:pk>/builds/', views.PipeLineBuildsView.as_view(), name='pipeline_builds'),
 ]

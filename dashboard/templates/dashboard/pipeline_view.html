@@ -13,7 +13,7 @@
     <!-- CodeMirror dependencies -->
     <link href="{% static 'dashboard/thirdparty/codemirror/lib/codemirror.css' %}" rel="stylesheet"/>
     <script>
-        require(["thirdparty/codemirror/lib/codemirror", "thirdparty/codemirror/mode/yaml/yaml"], function (CodeMirror) {
+        require(["static/dashboard/thirdparty/codemirror/lib/codemirror", "static/dashboard/thirdparty/codemirror/mode/yaml/yaml"], function (CodeMirror) {
             CodeMirror.fromTextArea(document.getElementById("pipeline-script"), {
                 lineNumbers: true,
                 mode: "yaml",
@@ -35,6 +35,6 @@
     {% for running_pipeline in running_pipelines %}
         {% include 'dashboard/pipeline_build_card.html' with build_number=running_pipeline.version subversion=running_pipeline.subversion %}
     {% endfor %}
-    <a href="#" class="btn btn-block btn-green mb-6">
+    <a href="{{ pipeline.get_absolute_url }}builds/" class="btn btn-block btn-green mb-6">
         <i class="fe fe-info mr-2"></i>View all build</a>
 {% endblock %}

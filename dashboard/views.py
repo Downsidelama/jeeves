@@ -83,3 +83,15 @@ class PipeLineDeleteView(View, LoginRequiredMixin):
         if pipeline:
             pipeline.delete()
         return redirect(reverse('dashboard:index'))
+
+
+class PipeLineBuildsView(View, LoginRequiredMixin):
+    def get(self, request, pk):
+        pipeline = get_object_or_404(PipeLine, pk=pk)
+        pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
+        context = {
+            "pipeline": pipeline,
+            "pipeline_builds": pipeline_builds
+        }
+
+        return render(request, 'dashboard/pipeline_builds.html', context=context)
