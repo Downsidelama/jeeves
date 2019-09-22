@@ -13,7 +13,7 @@
     <!-- CodeMirror dependencies -->
     <link href="{% static 'dashboard/thirdparty/codemirror/lib/codemirror.css' %}" rel="stylesheet"/>
     <script>
-        require(["static/dashboard/thirdparty/codemirror/lib/codemirror", "static/dashboard/thirdparty/codemirror/mode/yaml/yaml"], function (CodeMirror) {
+        require(["thirdparty/codemirror/lib/codemirror", "thirdparty/codemirror/mode/yaml/yaml"], function (CodeMirror) {
             CodeMirror.fromTextArea(document.getElementById("pipeline-script"), {
                 lineNumbers: true,
                 mode: "yaml",

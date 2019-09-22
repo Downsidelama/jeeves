@@ -128,3 +128,4 @@ dmypy.json
 .gitignore
 jeeves_temp/*
 run.bat
+*.sqlite3

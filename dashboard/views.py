@@ -64,7 +64,9 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
 class PipeLineDetailsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
-        running_pipelines = PipeLineResult.objects.filter(pipeline=pk, status=PipeLineStatus.IN_PROGRESS.value).order_by('pk').reverse()[:5]
+        running_pipelines = PipeLineResult.objects.filter(pipeline=pk,
+                                                          status=PipeLineStatus.IN_PROGRESS.value).order_by(
+            'pk').reverse()[:5]
 
         for build in running_pipelines:
             build.elapsed_time = timeago.format(build.created_at, now())
@@ -96,6 +98,14 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
+
+        for build in pipeline_builds:
+            build.status = PipeLineStatus(build.status).name
+            build.created_at_hr = timeago.format(build.created_at, now())
+            if build.status != PipeLineStatus.IN_PROGRESS.value:
+                build.elapsed_time = timeago.format(build.created_at, build.updated_at).replace(' ago', '')
+            else:
+                build.elapsed_time = timeago.format(build.created_at, now()).replace(' ago', '')
 
         context = {
             "pipeline": pipeline,
