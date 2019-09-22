@@ -1,11 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.utils.timezone import now
 from django.views import View
 
 from dashboard.forms import PipeLineModelForm
 from dashboard.models import PipeLine, PipeLineResult
 from dashboard.pipeline_status import PipeLineStatus
+
+import timeago
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -61,7 +64,11 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
 class PipeLineDetailsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
-        running_pipelines = PipeLineResult.objects.filter(pipeline=pk, status=PipeLineStatus.IN_PROGRESS.value)
+        running_pipelines = PipeLineResult.objects.filter(pipeline=pk, status=PipeLineStatus.IN_PROGRESS.value).order_by('pk').reverse()[:5]
+
+        for build in running_pipelines:
+            build.elapsed_time = timeago.format(build.created_at, now())
+
         context = {
             'pipeline': pipeline,
             'running_pipelines': running_pipelines
@@ -89,6 +96,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
+
         context = {
             "pipeline": pipeline,
             "pipeline_builds": pipeline_builds
