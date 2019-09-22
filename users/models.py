@@ -3,4 +3,9 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    pass
+    social_uid = models.TextField(null=True, blank=True)
+
+
+def get_social_uid(backend, user, response, *args, **kwargs):
+    user.social_uid = kwargs['uid']
+    user.save()
