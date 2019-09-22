@@ -22,6 +22,7 @@ app_name = 'jeeves'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', views.LoginView.as_view(), name='login'),
+    path('auth/', include('social_django.urls', namespace='social'), name='auth'),
     path('event_handler', include('github_webhook_handler.urls'), name='event_handler'),
     path('', include('dashboard.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
