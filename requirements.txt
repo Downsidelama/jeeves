@@ -6,3 +6,4 @@ Django==2.2.4
 selenium
 pyyaml
 social-auth-app-django
+timeago
