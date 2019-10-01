@@ -107,7 +107,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
             build.status = PipeLineStatus(build.status).name
             build.created_at_hr = timeago.format(build.created_at, now())
             progress = 100
-            
+
             if build.status != PipeLineStatus.IN_PROGRESS.name:
                 build.elapsed_time = timeago.format(build.created_at, build.updated_at).replace(' ago', '')
             else:

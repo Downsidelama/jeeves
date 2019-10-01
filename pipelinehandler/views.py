@@ -49,6 +49,7 @@ class DashboardPipeLineHandlerView(View):
 
     def run_docker_process(self, command, pipeline_results: PipeLineResult):
         output_file_path = os.path.join(settings.BASE_DIR, 'logs')
+        os.makedirs(output_file_path, exist_ok=True)
         output_file_name = "{}.log".format(uuid.uuid4())
 
         with open(os.path.join(output_file_path, output_file_name), 'w+') as output:
