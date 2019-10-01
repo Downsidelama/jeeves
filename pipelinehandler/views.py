@@ -36,6 +36,7 @@ class DashboardPipeLineHandlerView(View):
 
     def create_entry_and_start_pipeline(self, command, pipeline, version, subversion):
         pipeline_results = PipeLineResult.objects.create()
+        pipeline_results.triggered_by = pipeline.user.username
         pipeline_results.version = version
         pipeline_results.subversion = subversion
         pipeline_results.pipeline = pipeline

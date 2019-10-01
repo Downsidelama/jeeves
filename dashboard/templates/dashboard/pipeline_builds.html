@@ -15,12 +15,10 @@
                             <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
                                 <thead>
                                 <tr>
-                                    <th class="text-center w-1"><i class="icon-people"></i></th>
-                                    <th>User</th>
+                                    <th>Triggered by</th>
                                     <th>Progress (estimated)</th>
                                     <th class="text-center">Status</th>
                                     <th>Runtime</th>
-                                    <th class="text-center">Satisfaction</th>
                                     <th class="text-center"><i class="icon-settings"></i></th>
                                 </tr>
                                 </thead>
@@ -33,15 +31,10 @@
                                     {% else %}
                                         <tr class="alert alert-danger">
                                     {% endif %}
-                                        <td class="text-center">
-                                            <div class="avatar d-block" style="">
-                                                <span class="avatar-status bg-green"></span>
-                                            </div>
-                                        </td>
                                         <td>
-                                            <div>Elizabeth Martin</div>
+                                            <div>{{ build.triggered_by }}</div>
                                             <div class="small text-muted">
-                                                Registered: Mar 7, 2019
+                                                Started: {{ build.created_at }}
                                             </div>
                                         </td>
                                         <td>
@@ -64,13 +57,6 @@
                                         <td>
                                             <div><i class="fe fe-clock mr-2"></i> {{ build.elapsed_time }}</div>
                                             <div><i class="fe fe-calendar mr-2"></i> {{ build.created_at_hr }}</div>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="mx-auto chart-circle chart-circle-xs" data-value="0.42"
-                                                 data-thickness="3" data-color="blue">
-                                                <canvas width="40" height="40"></canvas>
-                                                <div class="chart-circle-value">42%</div>
-                                            </div>
                                         </td>
                                         <td class="text-center">
                                             <div class="item-action dropdown">

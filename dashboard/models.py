@@ -20,6 +20,7 @@ class PipeLine(models.Model):
 
 class PipeLineResult(models.Model):
     pipeline = models.ForeignKey(PipeLine, on_delete=models.CASCADE, default=1)
+    triggered_by = models.TextField(default="")
     version = models.IntegerField(default=1)
     subversion = models.IntegerField(default=1)
     command = models.TextField(default="")
