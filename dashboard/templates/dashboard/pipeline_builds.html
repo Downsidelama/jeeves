@@ -40,14 +40,11 @@
                                         <td>
                                             <div class="clearfix">
                                                 <div class="float-left">
-                                                    <strong>42%</strong>
-                                                </div>
-                                                <div class="float-right">
-                                                    <small class="text-muted">Jun 11, 2015 - Jul 10, 2015</small>
+                                                    <strong>{{ build.progress }}%</strong>
                                                 </div>
                                             </div>
                                             <div class="progress progress-xs">
-                                                <div class="progress-bar bg-yellow" role="progressbar" style="width: 40%"
+                                                <div class="progress-bar bg-green" role="progressbar" style="width: {{ build.progress }}%"
                                                      aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </td>

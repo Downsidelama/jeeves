@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -99,13 +101,22 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
 
+        average_runtime = self._calculate_average_runtime(pipeline_builds)
+
         for build in pipeline_builds:
             build.status = PipeLineStatus(build.status).name
             build.created_at_hr = timeago.format(build.created_at, now())
-            if build.status != PipeLineStatus.IN_PROGRESS.value:
+            progress = 100
+            
+            if build.status != PipeLineStatus.IN_PROGRESS.name:
                 build.elapsed_time = timeago.format(build.created_at, build.updated_at).replace(' ago', '')
             else:
+                current_run_time = (now() - build.created_at).total_seconds()
+                progress = int(current_run_time * 100 / average_runtime)
+                if progress > 99:
+                    progress = 99
                 build.elapsed_time = timeago.format(build.created_at, now()).replace(' ago', '')
+            build.progress = progress
 
         context = {
             "pipeline": pipeline,
@@ -113,3 +124,14 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
         }
 
         return render(request, 'dashboard/pipeline_builds.html', context=context)
+
+    def _calculate_average_runtime(self, pipeline_builds):
+        all_time = 0
+        filtered = pipeline_builds.exclude(status=PipeLineStatus.IN_PROGRESS.value)
+        if len(filtered) > 0:
+            for build in filtered:
+                all_time += (build.updated_at - build.created_at).total_seconds()
+            results = all_time / len(filtered)
+        else:
+            results = 1
+        return results
