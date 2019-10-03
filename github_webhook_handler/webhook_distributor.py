@@ -20,7 +20,7 @@ class WebhookDistributor:
         if 'X-GitHub-Event' in request.headers:
             self._load_env()
             payload = self._load_body_as_json(request.body)
-            #print(json.dumps(payload, indent=4, sort_keys=True))
+            print(json.dumps(payload, indent=4, sort_keys=True))
             github_client = self._create_installation_client(payload['installation']['id'])
             handler: Handler = None
 

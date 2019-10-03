@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.timezone import now
@@ -66,9 +67,12 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
 class PipeLineDetailsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
-        running_pipelines = PipeLineResult.objects.filter(pipeline=pk,
-                                                          status=PipeLineStatus.IN_PROGRESS.value).order_by(
-            'pk').reverse()[:5]
+        running_pipelines = PipeLineResult \
+                                .objects \
+                                .filter(Q(pipeline=pk)
+                                        & Q(status=PipeLineStatus.IN_PROGRESS.value)
+                                        | Q(status=PipeLineStatus.IN_QUEUE.value)).order_by('pk') \
+                                .reverse()[:5]
 
         for build in running_pipelines:
             build.elapsed_time = timeago.format(build.created_at, now())

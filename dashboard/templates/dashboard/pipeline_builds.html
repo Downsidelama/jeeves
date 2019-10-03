@@ -15,6 +15,7 @@
                             <table class="table table-hover table-outline table-vcenter text-nowrap card-table">
                                 <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>Triggered by</th>
                                     <th>Progress (estimated)</th>
                                     <th class="text-center">Status</th>
@@ -26,11 +27,14 @@
                                 {% for build in pipeline_builds %}
                                     {% if build.status == "SUCCESS" %}
                                         <tr class="alert alert-success">
-                                    {% elif build.status == "IN_PROGRESS" %}
-                                        <tr class="alert alert-warning">
-                                    {% else %}
+                                    {% elif build.status == "FAILED" %}
                                         <tr class="alert alert-danger">
+                                    {% else %}
+                                        <tr class="alert alert-warning">
                                     {% endif %}
+                                        <td>
+                                            <div>{{ build.version }}.{{ build.subversion }}</div>
+                                        </td>
                                         <td>
                                             <div>{{ build.triggered_by }}</div>
                                             <div class="small text-muted">
