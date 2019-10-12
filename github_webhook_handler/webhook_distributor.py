@@ -1,18 +1,17 @@
 import json
-import os
+import logging
 
-import github3
 from django.http import HttpRequest
 
 from github_webhook_handler.webhook_content_validator import WebhookContentValidator
 from github_webhook_handler.webhook_handlers import GitHubEventHandler
 from . import webhook_handlers
-from dotenv import load_dotenv
 
+logging.basicConfig(level=logging.DEBUG)
 
 class WebhookDistributor:
-
     handlers = {
+        'installation': webhook_handlers.InstallationEventHandler,
         'installation_repositories': webhook_handlers.InstallationRepositoriesEventHandler,
         'push': webhook_handlers.PushEventHandler,
     }
@@ -28,13 +27,16 @@ class WebhookDistributor:
             print(self.request.headers['X-GitHub-Event'])
             payload = self._load_body_as_json(self.request.body)
             if content_validator.validate(payload):
-                print(json.dumps(payload, indent=4, sort_keys=True))  # TODO: Remove this after debug done
+                # print(json.dumps(payload, indent=4, sort_keys=True))  # TODO: Remove this after debug done
 
                 handler: GitHubEventHandler = None
 
                 x_github_event = self.request.headers['X-GitHub-Event']
                 if x_github_event in self.handlers.keys():
-                    handler = self.handlers[x_github_event](payload, self.response, github_client)
+                    logging.debug("Event Handler implemented")
+                    handler = self.handlers[x_github_event](payload, self.response)
+                else:
+                    logging.debug("Event ignored")
 
                 if handler:
                     self.response = handler.get_response()
@@ -44,8 +46,6 @@ class WebhookDistributor:
         else:
             self.response['status'] = 'error'
             self.response['message'] = 'Invalid request.'
-
-
 
     def get_response(self) -> dict:
         return self.response

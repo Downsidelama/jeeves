@@ -129,3 +129,4 @@ dmypy.json
 jeeves_temp/*
 run.bat
 *.sqlite3
+start_smee.bat
