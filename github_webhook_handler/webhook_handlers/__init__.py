@@ -1,4 +1,4 @@
 from .github_event_handler import GitHubEventHandler
 from .push_event_handler import PushEventHandler
-from .installation_evenet_handler import InstallationEventHandler
+from .installation_event_handler import InstallationEventHandler
 from .installation_repositories_event_handler import InstallationRepositoriesEventHandler

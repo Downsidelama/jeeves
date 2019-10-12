@@ -11,11 +11,4 @@ class InstallationRepositoriesEventHandler(GitHubEventHandler):
         super().__init__(payload, response)
 
     def _handle_event(self):
-        users = self.user_model.objects.filter(username=self.username)
-        if len(users) == 0:
-            #  We have to add this user to the site
-            self.user_model.objects.create_user(username=self.username, password='', social_uid=self.user_id)
-
-    def _parse_important_info(self):
-        self.username = self.payload['installation']['account']['login']
-        self.user_id = self.payload['installation']['account']['id']
+        pass
