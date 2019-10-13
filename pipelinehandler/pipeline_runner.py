@@ -53,8 +53,8 @@ class PipeLineRunner:
         pipeline_result.command = command
         pipeline_result.status = PipeLineStatus.IN_QUEUE.value
         pipeline_result.save()
-        self.executor.submit(self.run_docker_process, command, pipeline_result)
-        return pipeline_result
+        future = self.executor.submit(self.run_docker_process, command, pipeline_result)
+        return pipeline_result, future
 
     def run_docker_process(self, command, pipeline_result: PipeLineResult):
         pipeline_result.status = PipeLineStatus.IN_PROGRESS.value
