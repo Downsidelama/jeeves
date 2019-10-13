@@ -19,6 +19,7 @@ class PipeLine(models.Model):
     #  Github pipeline stuff
     is_active = models.BooleanField(default=True)
     repository_id = models.IntegerField(null=True, default=None, unique=True)
+    commit_sha = models.CharField(max_length=40, null=True, default=None)
 
     def get_absolute_url(self):
         return reverse('dashboard:view_pipeline', kwargs={'pk': self.pk})
