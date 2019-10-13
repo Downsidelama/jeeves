@@ -41,7 +41,8 @@ class PipeLineRunner:
             pipeline_results.append(pipeline_result)
             futures.append(future)
 
-        self.watchers.submit(self.start_watcher, pipeline_results, futures)
+        # self.start_watcher(pipeline_results, futures)
+        # self.watchers.submit(self.start_watcher, pipeline_results, futures)
 
     def create_entry_and_start_pipeline(self, command, pipeline, version, subversion):
         pipeline_result = PipeLineResult.objects.create()
