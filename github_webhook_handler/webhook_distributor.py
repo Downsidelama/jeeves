@@ -9,6 +9,7 @@ from . import webhook_handlers
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 class WebhookDistributor:
     handlers = {
         'installation': webhook_handlers.InstallationEventHandler,
@@ -27,7 +28,7 @@ class WebhookDistributor:
             print(self.request.headers['X-GitHub-Event'])
             payload = self._load_body_as_json(self.request.body)
             if content_validator.validate(payload):
-                # print(json.dumps(payload, indent=4, sort_keys=True))  # TODO: Remove this after debug done
+                print(json.dumps(payload, indent=4, sort_keys=True))  # TODO: Remove this after debug done
 
                 handler: GitHubEventHandler = None
 

@@ -10,6 +10,8 @@ from abc import abstractmethod
 from dotenv import load_dotenv
 from social_django.models import UserSocialAuth
 
+from dashboard.models import PipeLine
+
 
 class GitHubEventHandler:
     social_auth_extra_info = r'{{"auth_time": {auth_time}, "id": {id}, "expires": null, "login": "{login}", ' \
@@ -47,7 +49,7 @@ class GitHubEventHandler:
         for retriever in available_retrievers:
             try:
                 retriever()
-                break
+                return
             except KeyError:
                 pass
         self._set_response('ERROR', "Invalid payload")
@@ -96,6 +98,13 @@ class GitHubEventHandler:
     def _set_response(self, status, message):
         self.response['status'] = status
         self.response['message'] = message
+
+    @staticmethod
+    def _register_repository(user, name, repository_id):
+        pipeline = PipeLine.objects.create(user=user, name=name, is_github_pipeline=True,
+                                           repository_id=repository_id)
+        pipeline.save()
+        return pipeline
 
     @staticmethod
     def _create_installation_client(installation_id):

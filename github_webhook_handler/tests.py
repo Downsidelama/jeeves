@@ -115,3 +115,7 @@ class PushEventHandlerTest(TestCase):
     def test_push_event_handler_empty_payload_error_in_response(self):
         ph = PushEventHandler({}, {})
         self.assertEquals(ph.get_response()['status'], 'ERROR')
+
+    # @patch('github_webhook_handler.webhook_handlers.push_event_handler.urllib3')
+    # def test_push_event_handler_valid_payload_everything_correct(self, urllib3_mock):
+    #     ph = PushEventHandler(self.valid_push_handler_payload, {})

@@ -13,6 +13,12 @@ class PipeLine(models.Model):
     description = models.TextField(default="")
     script = models.TextField(default="", blank=True)
     repo_url = models.URLField(default="")
+    is_github_pipeline = models.BooleanField(default=False)
+    site_private = models.BooleanField(default=False)  # Should we display it on the website?
+
+    #  Github pipeline stuff
+    is_active = models.BooleanField(default=True)
+    repository_id = models.IntegerField(null=True, default=None, unique=True)
 
     def get_absolute_url(self):
         return reverse('dashboard:view_pipeline', kwargs={'pk': self.pk})
