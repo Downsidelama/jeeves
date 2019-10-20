@@ -31,8 +31,9 @@ class PipeLineScriptParser:
         for key, value in allowed_components.items():
             if key in user_script:
                 if isinstance(user_script[key], list):
-                    if not (set(user_script[key]) <= set(allowed_components[key])):
-                        raise ValueError("Invalid YAML. Key: {}".format(key))
+                    if allowed_components[key] is not True:
+                        if not (set(user_script[key]) <= set(allowed_components[key])):
+                            raise ValueError("Invalid YAML. Key: {}".format(key))
                 elif isinstance(user_script[key], dict):
                     if not (user_script[key].keys() <= allowed_components[key].keys()):
                         raise ValueError("Invalid YAML. Key: {}".format(key))
