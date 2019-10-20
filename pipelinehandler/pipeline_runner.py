@@ -28,23 +28,25 @@ class PipeLineRunner:
         self.installation_id = installation_id
 
     def run_pipeline(self):
-        script = PipeLineScriptParser().parse(self.pipeline.script)
-        command_generator = PipeLineCommandGenerator(parsed_script=script, repository=self.pipeline.repo_url,
-                                                     revision=self.revision)
-        commands = command_generator.get_commands()
-        last_results = PipeLineResult.objects.filter(pipeline=self.pipeline).last()
-        version = last_results.version + 1 if last_results else 1
+        try:
+            script = PipeLineScriptParser().parse(self.pipeline.script)
+            command_generator = PipeLineCommandGenerator(parsed_script=script, repository=self.pipeline.repo_url,
+                                                         revision=self.revision)
+            commands = command_generator.get_commands()
+            last_results = PipeLineResult.objects.filter(pipeline=self.pipeline).last()
+            version = last_results.version + 1 if last_results else 1
 
-        pipeline_results = []
-        futures = []
-        for subversion, command in enumerate(commands):
-            pipeline_result, future = self.create_entry_and_start_pipeline(command, self.pipeline, version, subversion)
-            pipeline_results.append(pipeline_result)
-            futures.append(future)
+            pipeline_results = []
+            futures = []
+            for subversion, command in enumerate(commands):
+                pipeline_result, future = self.create_entry_and_start_pipeline(command, self.pipeline, version, subversion)
+                pipeline_results.append(pipeline_result)
+                futures.append(future)
 
-        # self.start_watcher(pipeline_results, futures)
-        if self.pipeline.is_github_pipeline:
-            self.watchers.submit(self.start_watcher, pipeline_results, futures)  # TODO: Add local watcher
+            if self.pipeline.is_github_pipeline:
+                self.watchers.submit(self.start_watcher, pipeline_results, futures)  # TODO: Add local watcher
+        except ValueError as e:
+            self.set_ci_status(status=GithubEventStatus.FAILURE, description=str(e))
 
     def create_entry_and_start_pipeline(self, command, pipeline, version, subversion):
         pipeline_result = PipeLineResult.objects.create()

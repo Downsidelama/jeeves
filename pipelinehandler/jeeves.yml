@@ -1,0 +1,23 @@
+before_install: true
+script: true
+after_install: true
+addons:
+  firefox:
+    - "60.0"
+language:
+  - "python"
+  - "java"
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+  - "2.7"
+java:
+  - "14"
+  - "13"
+  - "12"
+  - "11"
+  - "10"
+  - "9"
+  - "8"
+  - "7"
