@@ -5,6 +5,7 @@ import time
 import uuid
 from concurrent.futures.thread import ThreadPoolExecutor
 
+from django.utils.timezone import now
 from dotenv import load_dotenv
 import github3
 
@@ -59,6 +60,7 @@ class PipeLineRunner:
         return pipeline_result, future
 
     def run_docker_process(self, command, pipeline_result: PipeLineResult):
+        pipeline_result.build_start_time = now()
         pipeline_result.status = PipeLineStatus.IN_PROGRESS.value
         pipeline_result.save()
         output_file_path = os.path.join(settings.BASE_DIR, 'logs')
@@ -75,6 +77,8 @@ class PipeLineRunner:
                 pipeline_result.status = PipeLineStatus.SUCCESS.value
             else:
                 pipeline_result.status = PipeLineStatus.FAILED.value
+            pipeline_result.build_end_time = now()
+            pipeline_result.save()
 
         with open(os.path.join(output_file_path, output_file_name), 'r', encoding='utf8') as output:
             pipeline_result.log = str(output.read())

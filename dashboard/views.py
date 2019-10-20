@@ -50,7 +50,6 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
         return render(request, 'dashboard/pipeline_form.html', context)
 
     def post(self, request, pk):
-        print('post')
         model = get_object_or_404(PipeLine, pk=pk)
         form = PipeLineModelForm(request.POST or None, instance=model)
         if model.user == request.user:
