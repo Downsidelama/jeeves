@@ -34,6 +34,7 @@ class PipeLineResult(models.Model):
     status = models.IntegerField(default=PipeLineStatus.IN_PROGRESS.value)
     log = models.TextField(default="")
     config = models.TextField(default="")
-    # TODO: BUILD START TIME!
+    build_start_time = models.DateTimeField(null=True, default=None)
+    build_end_time = models.DateTimeField(null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
