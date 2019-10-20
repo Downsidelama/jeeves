@@ -111,8 +111,8 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
             build.created_at_hr = timeago.format(build.created_at, now())
             progress = 100
 
-            if build.status != PipeLineStatus.IN_PROGRESS.name:
-                build.elapsed_time = timeago.format(build.created_at, build.updated_at).replace(' ago', '')
+            if build.status not in [PipeLineStatus.IN_PROGRESS.name, PipeLineStatus.IN_QUEUE.value]:
+                build.elapsed_time = timeago.format(build.build_start_time, build.build_end_time).replace(' ago', '')
             else:
                 current_run_time = (now() - build.created_at).total_seconds()
                 progress = int(current_run_time * 100 / average_runtime)
@@ -130,11 +130,15 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
 
     def _calculate_average_runtime(self, pipeline_builds):
         all_time = 0
-        filtered = pipeline_builds.exclude(status=PipeLineStatus.IN_PROGRESS.value)
+        filtered = pipeline_builds.filter(~Q(status=PipeLineStatus.IN_PROGRESS.value)
+                                          & ~Q(status=PipeLineStatus.IN_QUEUE.value)
+                                          & ~Q(build_end_time=None) & ~Q(build_start_time=None))
+        # filtered = pipeline_builds.exclude(status=PipeLineStatus.IN_PROGRESS.value)
         if len(filtered) > 0:
             for build in filtered:
                 all_time += (build.updated_at - build.created_at).total_seconds()
             results = all_time / len(filtered)
         else:
             results = 1
+        print("avg: {}".format(results))
         return results
