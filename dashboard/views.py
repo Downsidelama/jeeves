@@ -1,5 +1,4 @@
-import datetime
-
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
@@ -7,7 +6,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.views import View
 
-from dashboard.forms import PipeLineModelForm
+from dashboard.forms import PipeLineModelForm, CustomUserCreationForm
 from dashboard.models import PipeLine, PipeLineResult
 from dashboard.pipeline_status import PipeLineStatus
 
@@ -19,6 +18,20 @@ class IndexView(LoginRequiredMixin, View):
         pipelines = PipeLine.objects.filter(user=request.user)
         context = {'pipelines': pipelines}
         return render(request, 'dashboard/index.html', context)
+
+
+class RegisterView(View):
+    def get(self, request):
+        form = CustomUserCreationForm()
+        return render(request, 'dashboard/registration.html', context={"form": form})
+
+    def post(self, request):
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("{}?successful_registration".format(reverse('login')))
+        else:
+            return render(request, 'dashboard/registration.html', context={"form": form})
 
 
 # TODO: Don't allow incorrect .yamls!

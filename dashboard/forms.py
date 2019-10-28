@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
 
 from dashboard.models import PipeLine
 
@@ -27,3 +29,9 @@ class PipeLineModelForm(forms.ModelForm):
         labels = {
             'repo_url': "Repository URL"
         }
+
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm):
+        model = get_user_model()
+        fields = ('username', 'email')
