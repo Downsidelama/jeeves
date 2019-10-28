@@ -25,6 +25,6 @@ urlpatterns = [
     path('auth/', include('social_django.urls', namespace='social'), name='auth'),
     path('event_handler', include('github_webhook_handler.urls'), name='event_handler'),
     path('', include('dashboard.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('django.contrib.auth.urls'), name='accounts'),
     path('pipelinehandler/', include('pipelinehandler.urls'), name='pipelinehandler'),
 ]

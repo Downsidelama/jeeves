@@ -39,7 +39,8 @@ class PipeLineRunner:
             pipeline_results = []
             futures = []
             for subversion, command in enumerate(commands):
-                pipeline_result, future = self.create_entry_and_start_pipeline(command, self.pipeline, version, subversion)
+                pipeline_result, future = self.create_entry_and_start_pipeline(command, self.pipeline, version,
+                                                                               subversion)
                 pipeline_results.append(pipeline_result)
                 futures.append(future)
 
@@ -61,7 +62,8 @@ class PipeLineRunner:
         future = self.executor.submit(self.run_docker_process, command, pipeline_result)
         return pipeline_result, future
 
-    def run_docker_process(self, command, pipeline_result: PipeLineResult):
+    @staticmethod
+    def run_docker_process(command, pipeline_result: PipeLineResult):
         pipeline_result.build_start_time = now()
         pipeline_result.status = PipeLineStatus.IN_PROGRESS.value
         pipeline_result.save()
