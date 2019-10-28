@@ -29,7 +29,9 @@ class RegisterView(View):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect(reverse('dashboard:index'))
+            return redirect("{}?successful_registration".format(reverse('login')))
+        else:
+            return render(request, 'dashboard/registration.html', context={"form": form})
 
 
 # TODO: Don't allow incorrect .yamls!

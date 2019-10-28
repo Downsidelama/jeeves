@@ -48,8 +48,13 @@
             <div class="row">
                 <div class="col col-login mx-auto">
                     <div class="text-center mb-6">
-                        <img src="{%  static 'dashboard/' %}" class="h-6" alt="">
+                        <img src="{% static 'dashboard/' %}" class="h-6" alt="">
                     </div>
+                    {% if 'successful_registration' in request.GET %}
+                        <div class="alert alert-success" role="alert">
+                            You have successfully registered, now you can log in!
+                        </div>
+                    {% endif %}
                     <form class="card" action="{% url 'login' %}" method="post">
                         {% csrf_token %}
                         <div class="card-body p-6">
