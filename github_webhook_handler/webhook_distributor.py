@@ -26,8 +26,8 @@ class WebhookDistributor:
         content_validator = WebhookContentValidator()
         if 'X-GitHub-Event' in self.request.headers:
             print(self.request.headers['X-GitHub-Event'])
-            payload = self._load_body_as_json(self.request.body)
-            if content_validator.validate(payload):
+            payload = json.loads(self.request.body)
+            if content_validator.validate(payload, self.request.headers):
                 print(json.dumps(payload, indent=4, sort_keys=True))  # TODO: Remove this after debug done
 
                 handler: GitHubEventHandler = None
@@ -50,6 +50,3 @@ class WebhookDistributor:
 
     def get_response(self) -> dict:
         return self.response
-
-    def _load_body_as_json(self, body):
-        return json.loads(body.decode())

@@ -9,6 +9,6 @@ class WebhookContentValidator:
     def _load_env_variables(self):
         pass
 
-    def validate(self, content):
+    def validate(self, content, headers):
         # TODO: actually implement this
         return True
