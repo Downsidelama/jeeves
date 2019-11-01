@@ -60,9 +60,9 @@ class TestPipeLineCommandGenerator(TestCase):
         command = PipeLineCommandGenerator(parsed_script,
                                            'https://github.com/Test/Repository', number=1).get_commands()
 
-        self.assertIn('git clone https://github.com/Test/Repository', command[0])
-        self.assertIn('python:3.7', command[0])
-        self.assertIn('python manage.py test', command[0])
+        self.assertTrue(any('git clone https://github.com/Test/Repository' in text for text in command[0]) and
+                        any('python:3.7' in text for text in command[0]) and
+                        any('python manage.py test' in text for text in command[0]))
 
     def test_multiple_language_version_multiple_elements_in_array(self):
         parsed_script = {

@@ -14,7 +14,7 @@ class PullRequestEventHandler(BuildEventHandler):
 
     def _handle_event(self):
         self.set_ci_status(commit=self.payload['pull_request']['head']['sha'], context="Jeeves CI - Pull Request", status=GithubEventStatus.PENDING)
-        if self.payload['action'] in ['opened']:
+        if self.payload['action'] in ['opened', 'synchronize']:
             self.send_to_worker()
 
     def send_to_worker(self):

@@ -58,7 +58,7 @@ class PipeLineRunner:
         pipeline_result = PipeLineResult.objects.create(installation_id=self.installation_id,
                                                         pull_request_number=self.pull_request_number,
                                                         revision=self.revision, branch=self.branch,
-                                                        type="Pull Request" if self.pull_request_number != 1 else 'Push')
+                                                        type="Pull Request" if self.pull_request_number != -1 else 'Push')
         pipeline_result.triggered_by = pipeline.user.username
         pipeline_result.version = version
         pipeline_result.subversion = subversion

@@ -12,7 +12,7 @@ class PushEventHandler(BuildEventHandler):
         super().__init__(payload, response)
 
     def _handle_event(self):
-        self.set_ci_status(commit=self.payload['after'], status=GithubEventStatus.PENDING)
+        self.set_ci_status(context="Jeeves CI - Push", commit=self.payload['after'], status=GithubEventStatus.PENDING)
         self.send_to_worker()
 
     def send_to_worker(self):
