@@ -34,6 +34,11 @@ class PipeLineResult(models.Model):
     status = models.IntegerField(default=PipeLineStatus.IN_PROGRESS.value)
     log = models.TextField(default="")
     config = models.TextField(default="")
+    type = models.TextField(default="push")  # push / pull_request
+    revision = models.TextField()
+    branch = models.TextField()
+    installation_id = models.IntegerField()
+    pull_request_number = models.IntegerField(default=-1)
     build_start_time = models.DateTimeField(null=True, default=None)
     build_end_time = models.DateTimeField(null=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)

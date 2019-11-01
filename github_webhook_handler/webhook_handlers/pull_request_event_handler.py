@@ -2,6 +2,7 @@ import json
 import logging
 
 from dashboard.models import PipeLine
+from github_webhook_handler.github_event_status import GithubEventStatus
 from github_webhook_handler.webhook_handlers.build_event_handler import BuildEventHandler
 from github_webhook_handler.webhook_handlers.utils.config_file_retriever import ConfigFileRetriever
 
@@ -12,6 +13,7 @@ class PullRequestEventHandler(BuildEventHandler):
         super().__init__(payload, response)
 
     def _handle_event(self):
+        self.set_ci_status(commit=self.payload['pull_request']['head']['sha'], context="Jeeves CI - Pull Request", status=GithubEventStatus.PENDING)
         if self.payload['action'] in ['opened']:
             self.send_to_worker()
 
@@ -34,7 +36,7 @@ class PullRequestEventHandler(BuildEventHandler):
             worker = self.get_free_worker()
 
             self.url_loader.request('POST', worker['url'], body=json.dumps(post_body))
-
+            logging.debug("Sent request to pipelinerunner")
             return True
         except (KeyError, ValueError):
             logging.exception("Couldn't handle event", exc_info=True)

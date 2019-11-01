@@ -2,6 +2,7 @@ import json
 import logging
 
 from dashboard.models import PipeLine
+from github_webhook_handler.github_event_status import GithubEventStatus
 from github_webhook_handler.webhook_handlers.build_event_handler import BuildEventHandler
 from github_webhook_handler.webhook_handlers.utils.config_file_retriever import ConfigFileRetriever
 
@@ -11,6 +12,7 @@ class PushEventHandler(BuildEventHandler):
         super().__init__(payload, response)
 
     def _handle_event(self):
+        self.set_ci_status(commit=self.payload['after'], status=GithubEventStatus.PENDING)
         self.send_to_worker()
 
     def send_to_worker(self):

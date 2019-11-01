@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 # Create your tests here.
+from pipelinehandler.pipeline_command_generator import PipeLineCommandGenerator
 from pipelinehandler.pipeline_script_parser import PipeLineScriptParser
 
 
@@ -46,3 +47,31 @@ class TestPipeLineScriptParser(TestCase):
         input_yaml = 'addons:\r\n   chrome:\r\n     - "60.0"'
         with self.assertRaises(ValueError):
             PipeLineScriptParser().parse(input_yaml)
+
+
+class TestPipeLineCommandGenerator(TestCase):
+
+    def test_pull_request_correct_input(self):
+        parsed_script = {
+            "language": "python",
+            "python": ['3.7'],
+            'script': ['python manage.py test'],
+        }
+        command = PipeLineCommandGenerator(parsed_script,
+                                           'https://github.com/Test/Repository', number=1).get_commands()
+
+        self.assertIn('git clone https://github.com/Test/Repository', command[0])
+        self.assertIn('python:3.7', command[0])
+        self.assertIn('python manage.py test', command[0])
+
+    def test_multiple_language_version_multiple_elements_in_array(self):
+        parsed_script = {
+            "language": "python",
+            "python": ['3.7', '3.6'],
+            'script': ['python manage.py test'],
+        }
+
+        command = PipeLineCommandGenerator(parsed_script,
+                                           'https://github.com/Test/Repository', number=1).get_commands()
+
+        self.assertEquals(2, len(command))

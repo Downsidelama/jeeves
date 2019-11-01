@@ -32,25 +32,22 @@ class BuildEventHandler(GitHubEventHandler, ABC):
         else:
             self._set_response('ERROR', "Couldn't handle event")
             return
-        self.set_ci_status(status=GithubEventStatus.PENDING)
         self._handle_event()
 
-    def set_ci_status(self, commit: str = None, status: GithubEventStatus = GithubEventStatus.SUCCESS,
+    def set_ci_status(self, commit: str, status: GithubEventStatus = GithubEventStatus.SUCCESS,
                       context: str = "Jeeves-CI", description: str = ""):
         try:
-            if commit is None:
-                commit = self.payload['after']
             self.repository.create_status(commit, status.value, context=context, description=description)
         except KeyError:
             self._set_response('ERROR', "Invalid payload")
-            logging.exception("Invalid payload", exc_info=True)
+            logging.exception("Invalid payload")
 
     def get_repository(self):
         try:
             return self.github_client.repository(self.payload['repository']['owner']['login'],
                                                  self.payload['repository']['name'])
         except KeyError:
-            logging.exception("Invalid payload", exc_info=True)
+            logging.exception("Invalid payload")
 
     def get_free_worker(self):
         return self.workers[0]  # TODO: get the on with the least load on them.

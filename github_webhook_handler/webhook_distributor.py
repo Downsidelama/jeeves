@@ -15,6 +15,7 @@ class WebhookDistributor:
         'installation': webhook_handlers.InstallationEventHandler,
         'installation_repositories': webhook_handlers.InstallationRepositoriesEventHandler,
         'push': webhook_handlers.PushEventHandler,
+        'pull_request': webhook_handlers.PullRequestEventHandler,
     }
 
     def __init__(self, request: HttpRequest):
