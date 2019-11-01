@@ -2,8 +2,8 @@ import json
 import logging
 
 from dashboard.models import PipeLine
-from github_webhook_handler.github_event_status import GithubEventStatus
 from github_webhook_handler.webhook_handlers.build_event_handler import BuildEventHandler
+from github_webhook_handler.webhook_handlers.utils.config_file_retriever import ConfigFileRetriever
 
 
 class PushEventHandler(BuildEventHandler):
@@ -15,8 +15,11 @@ class PushEventHandler(BuildEventHandler):
 
     def send_to_worker(self):
         try:
+            config_file_content = ConfigFileRetriever().get_push_style(self.payload['after'],
+                                                                       self.payload['repository']['owner']['login'],
+                                                                       self.payload['repository']['name'])
             post_body = {
-                'config_file_content': self._get_config_file_content(),
+                'config_file_content': config_file_content,
                 'pipeline_id': PipeLine.objects.get(repository_id=self.payload['repository']['id']).pk,
                 'commit_sha': self.payload['after'],
                 'html_url': self.payload['repository']['html_url'],

@@ -55,24 +55,6 @@ class BuildEventHandler(GitHubEventHandler, ABC):
     def get_free_worker(self):
         return self.workers[0]  # TODO: get the on with the least load on them.
 
-    def _get_config_file_content(self):
-        try:
-            revision = self.payload['after']
-            user = self.payload['repository']['owner']['login']
-            repo_name = self.payload['repository']['name']
-
-            current_config = self.config_file_url.format(user=user, repo_name=repo_name, revision=revision)
-            response: urllib3.HTTPResponse = self.url_loader.request('GET', current_config)
-
-            if response.status == 200:
-                yaml = response.data.decode()  # TODO: Make it safe (don't allow huge amounts of data)
-            else:
-                raise ValueError("Yaml file doesn't exists in the repository at this revision")
-            return yaml
-        except KeyError:
-            logging.exception("Invalid payload", exc_info=True)
-            return ''
-
     def _load_workers(self):
         try:
             with open('workers.json', 'r') as f:
