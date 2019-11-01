@@ -23,6 +23,10 @@ class GitHubEventHandler:
         self.response = response
         self._retrieve_user_info()
         self._register_github_user()
+        self._setup()
+
+    def _setup(self):
+        """Must call _handle_event() after setup steps!"""
         self._handle_event()
 
     @abstractmethod

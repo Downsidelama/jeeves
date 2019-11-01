@@ -23,6 +23,18 @@ class BuildEventHandler(GitHubEventHandler, ABC):
         super().__init__(payload, response)
         self.repository = self.get_repository()
 
+    def _setup(self):
+        self._load_workers()
+        self._make_installation_client()
+
+        if self.github_client:
+            self.repository = self.get_repository()
+        else:
+            self._set_response('ERROR', "Couldn't handle event")
+            return
+        self.set_ci_status(status=GithubEventStatus.PENDING)
+        self._handle_event()
+
     def set_ci_status(self, commit: str = None, status: GithubEventStatus = GithubEventStatus.SUCCESS,
                       context: str = "Jeeves-CI", description: str = ""):
         try:

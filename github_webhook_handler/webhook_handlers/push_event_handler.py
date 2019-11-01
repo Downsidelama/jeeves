@@ -11,16 +11,6 @@ class PushEventHandler(BuildEventHandler):
         super().__init__(payload, response)
 
     def _handle_event(self):
-        self._load_workers()
-        self._make_installation_client()
-
-        if self.github_client:
-            self.repository = self.get_repository()
-        else:
-            self._set_response('ERROR', "Couldn't handle event")
-            return
-        self.set_ci_status(status=GithubEventStatus.PENDING)
-
         self.send_to_worker()
 
     def send_to_worker(self):
