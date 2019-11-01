@@ -3,6 +3,7 @@ import logging
 
 from dashboard.models import PipeLine
 from github_webhook_handler.webhook_handlers.build_event_handler import BuildEventHandler
+from github_webhook_handler.webhook_handlers.utils.config_file_retriever import ConfigFileRetriever
 
 
 class PullRequestEventHandler(BuildEventHandler):
@@ -15,14 +16,19 @@ class PullRequestEventHandler(BuildEventHandler):
             self.send_to_worker()
 
     def send_to_worker(self):
+        config_file_content = ConfigFileRetriever() \
+            .get_push_style(self.payload['pull_request']['head']['sha'],
+                            self.payload['pull_request']['head']['user']['login'],
+                            self.payload['pull_request']['head']['repo']['name'])
         try:
             post_body = {
-                'config_file_content': self._get_config_file_content(),
+                'config_file_content': config_file_content,
                 'pipeline_id': PipeLine.objects.get(repository_id=self.payload['repository']['id']).pk,
-                'commit_sha': self.payload['after'],
+                'commit_sha': self.payload['pull_request']['head']['sha'],
                 'html_url': self.payload['repository']['html_url'],
                 'installation_id': self.payload['installation']['id'],
-                'ref': self.payload['ref'],
+                'ref': self.payload['pull_request']['head']['ref'],
+                'number': self.payload['pull_request']['number'],
             }
 
             worker = self.get_free_worker()
