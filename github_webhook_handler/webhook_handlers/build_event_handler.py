@@ -20,10 +20,10 @@ class BuildEventHandler(GitHubEventHandler, ABC):
 
     def __init__(self, payload, response):
         super().__init__(payload, response)
-        self.url_loader = urllib3.PoolManager()
         self.repository = self.get_repository()
 
     def _setup(self):
+        self.url_loader = urllib3.PoolManager()
         self._load_workers()
         self._make_installation_client()
 
