@@ -1,10 +1,11 @@
 import json
-from unittest.mock import patch
+import os
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from social_django.models import UserSocialAuth
 
+from github_webhook_handler.webhook_content_validator import HMACValidator, WebhookContentValidator
 from github_webhook_handler.webhook_handlers import GitHubEventHandler, PushEventHandler
 
 push_handler_payload = {
@@ -72,10 +73,10 @@ class GitHubEventHandlerTest(TestCase):
         self.assertEquals(eh.user_id, 1)
         self.assertEquals(eh.username, 'test_user')
 
-    def test_reponse_stays_the_same(self):
-        test_reponse = {'test': 123}
-        eh = GitHubEventHandler({}, test_reponse)
-        self.assertEquals(test_reponse, eh.get_response())
+    def test_response_stays_the_same(self):
+        test_response = {'test': 123}
+        eh = GitHubEventHandler({}, test_response)
+        self.assertEquals(test_response, eh.get_response())
 
     def test_user_gets_added_to_database(self):
         eh = GitHubEventHandler(installation_payload, {})
@@ -119,3 +120,29 @@ class PushEventHandlerTest(TestCase):
     # @patch('github_webhook_handler.webhook_handlers.push_event_handler.urllib3')
     # def test_push_event_handler_valid_payload_everything_correct(self, urllib3_mock):
     #     ph = PushEventHandler(self.valid_push_handler_payload, {})
+
+
+class TestHMACValidator(TestCase):
+    def test_correct_input_valid(self):
+        self.assertTrue(HMACValidator(b'secret', b'message', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
+
+    def test_incorrect_input_invalid(self):
+        self.assertFalse(HMACValidator(b'secret', b'message1', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
+
+    def test_long_key_valid(self):
+        self.assertTrue(
+            HMACValidator(b'secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret',
+                          b'message', 'efcbb64cb045019731ed651657f516350bfa5de3').validate())
+
+
+class TestWebhookContentValidator(TestCase):
+    def setUp(self):
+        self.validator = WebhookContentValidator()
+
+    def test_correct_input_valid(self):
+        self.assertTrue(
+            self.validator.validate(message=b"TEST_MESSAGE", _hash='73c3547fc2d9d1463abf40f446dc38028747f1ca'))
+
+    def test_incorrect_input_invalid(self):
+        self.assertFalse(
+            self.validator.validate(message=b"TEST_MESSAGE", _hash='73c3547fc2d9d1463abf40f446dc38028747f1cb'))

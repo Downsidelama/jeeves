@@ -7,8 +7,6 @@ from github_webhook_handler.webhook_content_validator import WebhookContentValid
 from github_webhook_handler.webhook_handlers import GitHubEventHandler
 from . import webhook_handlers
 
-logging.basicConfig(level=logging.DEBUG)
-
 
 class WebhookDistributor:
     handlers = {
@@ -27,7 +25,8 @@ class WebhookDistributor:
         if 'X-GitHub-Event' in self.request.headers:
             print(self.request.headers['X-GitHub-Event'])
             payload = self._load_body_as_json(self.request.body)
-            if content_validator.validate(payload):
+            if content_validator.validate(self.request.body,
+                                          self.request.headers['X-Hub-Signature'].replace('sha1=', '')):
                 print(json.dumps(payload, indent=4, sort_keys=True))  # TODO: Remove this after debug done
 
                 handler: GitHubEventHandler = None
@@ -44,6 +43,8 @@ class WebhookDistributor:
                 else:
                     self.response['status'] = 'error'
                     self.response['message'] = 'No handler for this hook.'
+            else:
+                logging.error("Request hash mismatch.")
         else:
             self.response['status'] = 'error'
             self.response['message'] = 'Invalid request.'
