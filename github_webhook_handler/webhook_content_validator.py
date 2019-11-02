@@ -14,7 +14,9 @@ class WebhookContentValidator:
         self.key = os.getenv('GITHUB_WEBHOOK_SECRET')
 
     def validate(self, message, _hash):
-        validator = HMACValidator(bytes(self.key, 'UTF-8'), message, _hash)
+        if isinstance(self.key, str):
+            self.key = bytes(self.key, 'UTF-8')
+        validator = HMACValidator(self.key, message, _hash)
         return validator.validate()
 
 
