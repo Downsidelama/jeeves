@@ -52,7 +52,8 @@ class PipeLineRunner:
             if self.pipeline.is_github_pipeline:
                 self.watchers.submit(self.start_watcher, pipeline_results, futures)
         except ValueError as e:
-            self.set_ci_status(status=GithubEventStatus.FAILURE, description=str(e))
+            if self.pipeline.is_github_pipeline:
+                self.set_ci_status(status=GithubEventStatus.FAILURE, description=str(e))
 
     def create_entry_and_start_pipeline(self, command, pipeline, version, subversion):
         pipeline_result = PipeLineResult.objects.create(installation_id=self.installation_id,
