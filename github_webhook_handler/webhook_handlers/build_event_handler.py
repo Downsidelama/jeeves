@@ -17,10 +17,10 @@ class BuildEventHandler(GitHubEventHandler, ABC):
         }
     ]
     config_file_url = 'https://raw.githubusercontent.com/{user}/{repo_name}/{revision}/.jeeves.yml'
-    url_loader = urllib3.PoolManager()
 
     def __init__(self, payload, response):
         super().__init__(payload, response)
+        self.url_loader = urllib3.PoolManager()
         self.repository = self.get_repository()
 
     def _setup(self):
