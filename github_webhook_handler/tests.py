@@ -1,12 +1,11 @@
-import hashlib
 import json
-from unittest.mock import patch
+import os
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from social_django.models import UserSocialAuth
 
-from github_webhook_handler.webhook_content_validator import HMACValidator
+from github_webhook_handler.webhook_content_validator import HMACValidator, WebhookContentValidator
 from github_webhook_handler.webhook_handlers import GitHubEventHandler, PushEventHandler
 
 push_handler_payload = {
@@ -124,8 +123,25 @@ class PushEventHandlerTest(TestCase):
 
 
 class TestHMACValidator(TestCase):
-    def test_correct_input_correct_output(self):
-        self.assertTrue(HMACValidator('secret', 'message', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
+    def test_correct_input_valid(self):
+        self.assertTrue(HMACValidator(b'secret', b'message', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
 
-    def test_incorrect_input_correct_output(self):
-        self.assertFalse(HMACValidator('secret', 'message1', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
+    def test_incorrect_input_invalid(self):
+        self.assertFalse(HMACValidator(b'secret', b'message1', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
+
+
+class TestWebhookContentValidator(TestCase):
+    def setUp(self):
+        self.validator = WebhookContentValidator()
+
+    def test_correct_input_valid(self):
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_inputs', 'input1.txt'), 'rb') as f:
+            message = f.read()
+        self.assertTrue(
+            self.validator.validate(message=message, _hash='69f6ff25aec5118e969d6af83f330742fe685135'))
+
+    def test_incorrect_input_invalid(self):
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_inputs', 'input1.txt'), 'rb') as f:
+            message = f.read()
+        self.assertFalse(
+            self.validator.validate(message=message, _hash='69f6ff25aec5118e969d6af83f330742fe685136'))

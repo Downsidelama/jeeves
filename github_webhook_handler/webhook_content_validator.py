@@ -1,4 +1,4 @@
-import _hashlib
+import os
 
 from dotenv import load_dotenv
 from hashlib import sha1
@@ -9,14 +9,12 @@ class WebhookContentValidator:
     The """
 
     def __init__(self):
-        self._load_env_variables()
+        load_dotenv()
+        self.key = os.getenv('GITHUB_WEBHOOK_SECRET')
 
-    def _load_env_variables(self):
-        pass
-
-    def validate(self, content):
-        # TODO: actually implement this
-        return True
+    def validate(self, message, _hash):
+        validator = HMACValidator(bytes(self.key, 'UTF-8'), message, _hash)
+        return validator.validate()
 
 
 class HMACValidator:
@@ -29,21 +27,21 @@ class HMACValidator:
     translator_36 = bytes((x ^ 0x36) for x in range(256))
 
     def __init__(self, key, message, hash):
-        self.key = bytes(key, 'UTF-8')
-        self.message = bytes(message, 'UTF-8')
+        self.key = key
+        self.message = message
         self.hash = hash
 
     def validate(self):
-        if len(self.key) < self.block_size:
-            self.key = self.key.ljust(self.block_size, b'\x00')
-
         if len(self.key) > self.block_size:
-            self.key = sha1(self.key).hexdigest()
+            key = sha1(self.key).hexdigest()
+        else:
+            key = self.key.ljust(self.block_size, b'\x00')
 
-        o_key_pad = self._xor_bytes(self.key, bytes([0x5c] * 64))
-        i_key_pad = self._xor_bytes(self.key, bytes([0x36] * 64))
+        o_key_pad = self._xor_bytes(key, bytes([0x5c] * 64))
+        i_key_pad = self._xor_bytes(key, bytes([0x36] * 64))
 
         hexdigest = sha1(o_key_pad + sha1(i_key_pad + self.message).digest()).hexdigest()
+        print(hexdigest, self.hash)
         return hexdigest == self.hash
 
     def _xor_bytes(self, a, b):
