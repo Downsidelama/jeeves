@@ -135,13 +135,9 @@ class TestWebhookContentValidator(TestCase):
         self.validator = WebhookContentValidator()
 
     def test_correct_input_valid(self):
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_inputs', 'input1.txt'), 'rb') as f:
-            message = f.read()
         self.assertTrue(
-            self.validator.validate(message=message, _hash='69f6ff25aec5118e969d6af83f330742fe685135'))
+            self.validator.validate(message=b"TEST_MESSAGE", _hash='73c3547fc2d9d1463abf40f446dc38028747f1ca'))
 
     def test_incorrect_input_invalid(self):
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_inputs', 'input1.txt'), 'rb') as f:
-            message = f.read()
         self.assertFalse(
-            self.validator.validate(message=message, _hash='69f6ff25aec5118e969d6af83f330742fe685136'))
+            self.validator.validate(message=b"TEST_MESSAGE", _hash='73c3547fc2d9d1463abf40f446dc38028747f1cb'))
