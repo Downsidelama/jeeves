@@ -42,7 +42,7 @@ class HMACValidator:
         i_key_pad = self._xor_bytes(key, bytes([0x36] * 64))
 
         hexdigest = sha1(o_key_pad + sha1(i_key_pad + self.message).digest()).hexdigest()
-        h = hmac.new(self.key, self.message).hexdigest()
+        h = hmac.new(self.key, self.message, sha1).hexdigest()
         print(self.key, hexdigest, self.hash, h)
         return hexdigest == self.hash
 
