@@ -129,6 +129,11 @@ class TestHMACValidator(TestCase):
     def test_incorrect_input_invalid(self):
         self.assertFalse(HMACValidator(b'secret', b'message1', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
 
+    def test_long_key_valid(self):
+        self.assertTrue(
+            HMACValidator(b'secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret',
+                          b'message', 'efcbb64cb045019731ed651657f516350bfa5de3').validate())
+
 
 class TestWebhookContentValidator(TestCase):
     def setUp(self):

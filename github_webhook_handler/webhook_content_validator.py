@@ -35,16 +35,16 @@ class HMACValidator:
         self.hash = hash
 
     def validate(self):
-        if len(self.key) > self.block_size:
-            key = sha1(self.key).hexdigest()
-        else:
-            key = self.key.ljust(self.block_size, b'\x00')
+        key = self.key
+        if len(key) > self.block_size:
+            key = sha1(key).digest()
+
+        key = key.ljust(self.block_size, b'\x00')
 
         o_key_pad = self._xor_bytes(key, bytes([0x5c] * 64))
         i_key_pad = self._xor_bytes(key, bytes([0x36] * 64))
 
         hexdigest = sha1(o_key_pad + sha1(i_key_pad + self.message).digest()).hexdigest()
-        h = hmac.new(self.key, self.message, sha1).hexdigest()
         return hexdigest == self.hash
 
     def _xor_bytes(self, a, b):
