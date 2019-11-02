@@ -1,3 +1,4 @@
+import hashlib
 import json
 from unittest.mock import patch
 
@@ -5,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from social_django.models import UserSocialAuth
 
+from github_webhook_handler.webhook_content_validator import HMACValidator
 from github_webhook_handler.webhook_handlers import GitHubEventHandler, PushEventHandler
 
 push_handler_payload = {
@@ -119,3 +121,11 @@ class PushEventHandlerTest(TestCase):
     # @patch('github_webhook_handler.webhook_handlers.push_event_handler.urllib3')
     # def test_push_event_handler_valid_payload_everything_correct(self, urllib3_mock):
     #     ph = PushEventHandler(self.valid_push_handler_payload, {})
+
+
+class TestHMACValidator(TestCase):
+    def test_correct_input_correct_output(self):
+        self.assertTrue(HMACValidator('secret', 'message', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
+
+    def test_incorrect_input_correct_output(self):
+        self.assertFalse(HMACValidator('secret', 'message1', '0caf649feee4953d87bf903ac1176c45e028df16').validate())
