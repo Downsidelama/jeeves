@@ -1,3 +1,4 @@
+import hmac
 import os
 
 from dotenv import load_dotenv
@@ -41,7 +42,8 @@ class HMACValidator:
         i_key_pad = self._xor_bytes(key, bytes([0x36] * 64))
 
         hexdigest = sha1(o_key_pad + sha1(i_key_pad + self.message).digest()).hexdigest()
-        print(self.key, hexdigest, self.hash)
+        h = hmac.new(self.key, self.message).hexdigest()
+        print(self.key, hexdigest, self.hash, h)
         return hexdigest == self.hash
 
     def _xor_bytes(self, a, b):
