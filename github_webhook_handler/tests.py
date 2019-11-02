@@ -73,10 +73,10 @@ class GitHubEventHandlerTest(TestCase):
         self.assertEquals(eh.user_id, 1)
         self.assertEquals(eh.username, 'test_user')
 
-    def test_reponse_stays_the_same(self):
-        test_reponse = {'test': 123}
-        eh = GitHubEventHandler({}, test_reponse)
-        self.assertEquals(test_reponse, eh.get_response())
+    def test_response_stays_the_same(self):
+        test_response = {'test': 123}
+        eh = GitHubEventHandler({}, test_response)
+        self.assertEquals(test_response, eh.get_response())
 
     def test_user_gets_added_to_database(self):
         eh = GitHubEventHandler(installation_payload, {})
