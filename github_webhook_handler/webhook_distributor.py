@@ -7,8 +7,6 @@ from github_webhook_handler.webhook_content_validator import WebhookContentValid
 from github_webhook_handler.webhook_handlers import GitHubEventHandler
 from . import webhook_handlers
 
-logging.basicConfig(level=logging.DEBUG)
-
 
 class WebhookDistributor:
     handlers = {
