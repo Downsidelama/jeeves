@@ -1,6 +1,11 @@
+import json
+import os
+from uuid import uuid5, uuid4
+
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.timezone import now
@@ -11,6 +16,26 @@ from dashboard.models import PipeLine, PipeLineResult
 from dashboard.pipeline_status import PipeLineStatus
 
 import timeago
+
+from jeeves import settings
+
+
+def livelog(request):
+    return render(request, 'dashboard/livelog/livelog.html')
+
+
+chars_to_filter = ['[0K', '[?25l ', '[K', '[?25h', '', '[?25l']
+
+
+def livelog_show(request, pk, current_size):
+    with open(os.path.join(settings.BASE_DIR, f'logs/{pk}.log'), 'rb') as f:
+        f.seek(current_size)
+        t = f.read().decode()
+        for chars in chars_to_filter:
+            t = t.replace(chars, '')
+        current_size = f.tell()
+        dumps = json.dumps({"text": f"{t}", "current_size": current_size})
+        return HttpResponse(dumps)
 
 
 class IndexView(LoginRequiredMixin, View):
