@@ -76,3 +76,16 @@ class TestPipeLineCommandGenerator(TestCase):
                                            revision='revision').get_commands()
 
         self.assertEquals(2, len(command))
+
+    def test_branch_and_revision_in_command(self):
+        parsed_script = {
+            "language": "python",
+            "python": ['3.7', '3.6'],
+            'script': ['python manage.py test'],
+        }
+        command = PipeLineCommandGenerator(parsed_script,
+                                           'https://github.com/Test/Repository', branch='master',
+                                           revision='revision').get_commands()
+
+        self.assertTrue(any('--branch=master' in text for text in command[0]) and
+                        any('git checkout -qf revision' in text for text in command[0]))
