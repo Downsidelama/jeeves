@@ -80,7 +80,7 @@ class PipeLineRunner:
         os.makedirs(output_file_path, exist_ok=True)
         output_file_name = "{}.log".format(uuid.uuid4())
 
-        with open(os.path.join(output_file_path, output_file_name), 'w+') as output:
+        with open(os.path.join(output_file_path, output_file_name), 'wb+') as output:
             with subprocess.Popen(command, stderr=subprocess.STDOUT, stdout=output) as process:
 
                 process.wait()
