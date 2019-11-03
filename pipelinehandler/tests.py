@@ -127,10 +127,18 @@ class TestPipeLineRunner(TestCase):
 
         def runner(func, *args, **kwargs):
             func(*args, **kwargs)
+            m = mock.MagicMock()
+            m.exception.side_effect = [True, Exception]
+            return m
+
         executor = mock.MagicMock()
         executor.submit.side_effect = runner
 
-        pipeline_runner.watchers = mock.MagicMock()
+        watcher = mock.MagicMock()
+        watcher.submit.side_effect = runner
+        watcher.submit.return_value.exception.side_effect = [True, Exception]
+
+        pipeline_runner.watchers = watcher
         pipeline_runner.executor = executor
         pipeline_runner.run_pipeline()
 
