@@ -1,6 +1,11 @@
-from django.test import TestCase
+import json
+from unittest import mock
+
+from django.test import TestCase, Client
 
 # Create your tests here.
+from django.urls import reverse
+
 from pipelinehandler.pipeline_command_generator import PipeLineCommandGenerator
 from pipelinehandler.pipeline_script_parser import PipeLineScriptParser
 
@@ -89,3 +94,27 @@ class TestPipeLineCommandGenerator(TestCase):
 
         self.assertTrue(any('--branch=master' in text for text in command[0]) and
                         any('git checkout -qf revision' in text for text in command[0]))
+
+
+class TestViews(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    @mock.patch('pipelinehandler.views.PipeLineRunner')
+    @mock.patch('pipelinehandler.views.get_object_or_404')
+    def test_github_pipeline_handler_pull_request_call_correct_parameters(self, get_mock, pipeline_runner_mock):
+        data = {
+            'config_file_content': "language: python",
+            'pipeline_id': 1,
+            'commit_sha': "0000000000000000000000000000000000000000",
+            'html_url': "https://github.com/Test/Repository",
+            'installation_id': 1,
+            'ref': "important_feature",
+            'number': 1,
+        }
+        self.client.post(reverse('pipelinehandler:github-handler'), json.dumps(data), content_type='application/json')
+
+        self.assertEquals(pipeline_runner_mock.call_args[1],
+                          {'revision': data['commit_sha'], 'installation_id': data['installation_id'],
+                           'pull_request_number': data['number']})
+        self.assertEquals(pipeline_runner_mock.call_args[0], (get_mock(1),))

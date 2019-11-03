@@ -21,10 +21,6 @@ class GithubPipeLineHandlerView(View):
 
     def post(self, request: HttpRequest):
         request_body = json.loads(request.body)
-        print('--------------------------------------')
-        print(request_body)
-        print('--------------------------------------')
-
         pipeline = get_object_or_404(PipeLine, pk=request_body['pipeline_id'])
         pipeline.repo_url = request_body['html_url']
         pipeline.script = request_body['config_file_content']
