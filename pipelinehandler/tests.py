@@ -72,6 +72,7 @@ class TestPipeLineCommandGenerator(TestCase):
         }
 
         command = PipeLineCommandGenerator(parsed_script,
-                                           'https://github.com/Test/Repository', number=1).get_commands()
+                                           'https://github.com/Test/Repository', branch='master',
+                                           revision='revision').get_commands()
 
         self.assertEquals(2, len(command))
