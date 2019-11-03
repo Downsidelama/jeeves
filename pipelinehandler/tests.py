@@ -6,7 +6,6 @@ from django.test import TestCase, Client
 # Create your tests here.
 from django.urls import reverse
 
-from dashboard.models import PipeLine
 from pipelinehandler.pipeline_command_generator import PipeLineCommandGenerator
 from pipelinehandler.pipeline_runner import PipeLineRunner
 from pipelinehandler.pipeline_script_parser import PipeLineScriptParser
@@ -100,12 +99,13 @@ class TestPipeLineCommandGenerator(TestCase):
 
 class TestPipeLineRunner(TestCase):
 
-    @mock.patch('pipelinehandler.pipeline_runner.subprocess')
+    @mock.patch('pipelinehandler.pipeline_runner.Popen')
     @mock.patch('pipelinehandler.pipeline_runner.ThreadPoolExecutor')
     @mock.patch('pipelinehandler.pipeline_runner.PipeLine')
     @mock.patch('pipelinehandler.pipeline_runner.PipeLineResult')
     @mock.patch('pipelinehandler.pipeline_runner.github3')
-    def test_correct_input_starts_pipeline(self, github_mock, pipeline_results_mock, pipeline_mock, executor_mock, subprocess_mock):
+    def test_correct_input_starts_pipeline(self, github_mock, pipeline_results_mock, pipeline_mock, executor_mock,
+                                           popen_mock):
         script = 'language: python\npython:\n- "3.7"\nscript:\n- "pip install -r requirements.txt"'
         branch = "master"
         revision = "revision"
@@ -119,10 +119,22 @@ class TestPipeLineRunner(TestCase):
         pipeline_results_dummy = mock.MagicMock()
         pipeline_results_dummy.version = 1
         pipeline_results_mock.objects.filter.return_value.last.return_value = pipeline_results_dummy
-        executor_dummy = mock.MagicMock()
-        executor_mock.return_value.submit = executor_dummy
 
-        PipeLineRunner(pipeline, revision=revision, installation_id=installation_id, branch=branch).run_pipeline()
+        popen_mock.return_value = mock.MagicMock()
+        popen_mock.return_value.__enter__.return_value.returncode = 0
+
+        pipeline_runner = PipeLineRunner(pipeline, revision=revision, installation_id=installation_id, branch=branch)
+
+        def runner(func, *args, **kwargs):
+            func(*args, **kwargs)
+        executor = mock.MagicMock()
+        executor.submit.side_effect = runner
+
+        pipeline_runner.watchers = mock.MagicMock()
+        pipeline_runner.executor = executor
+        pipeline_runner.run_pipeline()
+
+        popen_mock.return_value.__enter__.assert_called()
 
 
 class TestViews(TestCase):

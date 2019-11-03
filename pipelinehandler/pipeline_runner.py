@@ -3,6 +3,7 @@ import os
 import subprocess
 import time
 import uuid
+from subprocess import Popen
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from django.utils.timezone import now
@@ -71,8 +72,7 @@ class PipeLineRunner:
         future = self.executor.submit(self.run_docker_process, command, pipeline_result)
         return pipeline_result, future
 
-    @staticmethod
-    def run_docker_process(command, pipeline_result: PipeLineResult):
+    def run_docker_process(self, command, pipeline_result: PipeLineResult):
         pipeline_result.build_start_time = now()
         pipeline_result.status = PipeLineStatus.IN_PROGRESS.value
         pipeline_result.save()
@@ -81,7 +81,7 @@ class PipeLineRunner:
         output_file_name = "{}.log".format(uuid.uuid4())
 
         with open(os.path.join(output_file_path, output_file_name), 'wb+') as output:
-            with subprocess.Popen(command, stderr=subprocess.STDOUT, stdout=output) as process:
+            with Popen(command, stderr=subprocess.STDOUT, stdout=output) as process:
 
                 process.wait()
                 return_code = process.returncode
