@@ -16,9 +16,6 @@ class GithubPipeLineHandlerView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request):
-        return HttpResponse("OK")
-
     def post(self, request: HttpRequest):
         request_body = json.loads(request.body)
         pipeline = get_object_or_404(PipeLine, pk=request_body['pipeline_id'])

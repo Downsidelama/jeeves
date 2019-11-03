@@ -118,3 +118,21 @@ class TestViews(TestCase):
                           {'revision': data['commit_sha'], 'installation_id': data['installation_id'],
                            'pull_request_number': data['number']})
         self.assertEquals(pipeline_runner_mock.call_args[0], (get_mock(1),))
+
+    @mock.patch('pipelinehandler.views.PipeLineRunner')
+    @mock.patch('pipelinehandler.views.get_object_or_404')
+    def test_github_pipeline_handler_push_call_correct_parameters(self, get_mock, pipeline_runner_mock):
+        data = {
+            'config_file_content': "language: python",
+            'pipeline_id': 1,
+            'commit_sha': "0000000000000000000000000000000000000000",
+            'html_url': "https://github.com/Test/Repository",
+            'installation_id': 1,
+            'ref': "important_feature",
+        }
+
+        self.client.post(reverse('pipelinehandler:github-handler'), json.dumps(data), content_type='application/json')
+        self.assertEquals(pipeline_runner_mock.call_args[1],
+                          {'revision': '0000000000000000000000000000000000000000', 'installation_id': 1,
+                           'branch': 'important_feature'})
+        self.assertEquals(pipeline_runner_mock.call_args[0], (get_mock(1),))
