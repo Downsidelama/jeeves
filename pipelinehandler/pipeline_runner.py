@@ -131,12 +131,9 @@ class PipeLineRunner:
             commit = self.revision
         client = self.get_github_client()
         repository = self.get_repository(client)
-        logging.debug("got repository")
         print(repository.create_status(commit, status.value, context=context, description=description))
-        logging.debug("set ci status")
 
     def get_repository(self, github_client):
-        logging.debug("Getting repository.")
         try:
             return github_client.repository(self.pipeline.user.username, self.pipeline.name)
         except KeyError:
@@ -149,5 +146,4 @@ class PipeLineRunner:
 
         client = github3.GitHub()
         client.login_as_app_installation(GITHUB_PRIVATE_KEY.encode(), GITHUB_APP_IDENTIFIER, self.installation_id)
-        logging.debug("Logged in as an installation.")
         return client

@@ -6,7 +6,9 @@ from django.test import TestCase, Client
 # Create your tests here.
 from django.urls import reverse
 
+from dashboard.models import PipeLine
 from pipelinehandler.pipeline_command_generator import PipeLineCommandGenerator
+from pipelinehandler.pipeline_runner import PipeLineRunner
 from pipelinehandler.pipeline_script_parser import PipeLineScriptParser
 
 
@@ -96,6 +98,33 @@ class TestPipeLineCommandGenerator(TestCase):
                         any('git checkout -qf revision' in text for text in command[0]))
 
 
+class TestPipeLineRunner(TestCase):
+
+    @mock.patch('pipelinehandler.pipeline_runner.subprocess')
+    @mock.patch('pipelinehandler.pipeline_runner.ThreadPoolExecutor')
+    @mock.patch('pipelinehandler.pipeline_runner.PipeLine')
+    @mock.patch('pipelinehandler.pipeline_runner.PipeLineResult')
+    @mock.patch('pipelinehandler.pipeline_runner.github3')
+    def test_correct_input_starts_pipeline(self, github_mock, pipeline_results_mock, pipeline_mock, executor_mock, subprocess_mock):
+        script = 'language: python\npython:\n- "3.7"\nscript:\n- "pip install -r requirements.txt"'
+        branch = "master"
+        revision = "revision"
+        installation_id = 1
+        pipeline = mock.MagicMock()
+        pipeline.is_github_pipeline = True
+        pipeline.script = script
+        pipeline.repo_url = "https://github.com/test/repo"
+        pipeline.name = "repo"
+        pipeline.user.username = "user"
+        pipeline_results_dummy = mock.MagicMock()
+        pipeline_results_dummy.version = 1
+        pipeline_results_mock.objects.filter.return_value.last.return_value = pipeline_results_dummy
+        executor_dummy = mock.MagicMock()
+        executor_mock.return_value.submit = executor_dummy
+
+        PipeLineRunner(pipeline, revision=revision, installation_id=installation_id, branch=branch).run_pipeline()
+
+
 class TestViews(TestCase):
     def setUp(self):
         self.client = Client()
@@ -130,8 +159,8 @@ class TestViews(TestCase):
             'installation_id': 1,
             'ref': "important_feature",
         }
-
         self.client.post(reverse('pipelinehandler:github-handler'), json.dumps(data), content_type='application/json')
+
         self.assertEquals(pipeline_runner_mock.call_args[1],
                           {'revision': '0000000000000000000000000000000000000000', 'installation_id': 1,
                            'branch': 'important_feature'})
