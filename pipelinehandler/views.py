@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import get_object_or_404, redirect
@@ -17,19 +18,24 @@ class GithubPipeLineHandlerView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request: HttpRequest):
-        request_body = json.loads(request.body)
-        pipeline = get_object_or_404(PipeLine, pk=request_body['pipeline_id'])
-        pipeline.repo_url = request_body['html_url']
-        pipeline.script = request_body['config_file_content']
-        if 'number' in request_body:
-            PipeLineRunner(pipeline, revision=request_body['commit_sha'],
-                           installation_id=request_body['installation_id'],
-                           pull_request_number=request_body['number']).run_pipeline()
-        else:
-            branch = request_body['ref'].split('/')[-1]
-            PipeLineRunner(pipeline, revision=request_body['commit_sha'],
-                           installation_id=request_body['installation_id'], branch=branch).run_pipeline()
-        return HttpResponse("OK")
+        try:
+            request_body = json.loads(request.body)
+            pipeline = get_object_or_404(PipeLine, pk=request_body['pipeline_id'])
+            pipeline.repo_url = request_body['html_url']
+            pipeline.script = request_body['config_file_content']
+            if 'number' in request_body:
+                PipeLineRunner(pipeline, revision=request_body['commit_sha'],
+                               installation_id=request_body['installation_id'],
+                               pull_request_number=request_body['number']).run_pipeline()
+            else:
+                branch = request_body['ref'].split('/')[-1]
+                PipeLineRunner(pipeline, revision=request_body['commit_sha'],
+                               installation_id=request_body['installation_id'], branch=branch).run_pipeline()
+            return HttpResponse("OK")
+        except:
+            logging.exception("Error during pipeline setup.")
+            return HttpResponse("Error")
+
 
 
 class DashboardPipeLineHandlerView(View):

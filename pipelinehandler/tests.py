@@ -136,3 +136,10 @@ class TestViews(TestCase):
                           {'revision': '0000000000000000000000000000000000000000', 'installation_id': 1,
                            'branch': 'important_feature'})
         self.assertEquals(pipeline_runner_mock.call_args[0], (get_mock(1),))
+
+    @mock.patch('pipelinehandler.views.PipeLineRunner')
+    @mock.patch('pipelinehandler.views.get_object_or_404')
+    def test_github_pipeline_exception_no_call_to_pipeline_runner(self, get_mock, pipeline_runner_mock):
+        self.client.post(reverse('pipelinehandler:github-handler'), content_type='application/json')
+
+        self.assertEquals(pipeline_runner_mock.call_count, 0)
