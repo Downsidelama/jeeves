@@ -13,6 +13,7 @@ class WebhookDistributor:
         'installation': webhook_handlers.InstallationEventHandler,
         'installation_repositories': webhook_handlers.InstallationRepositoriesEventHandler,
         'push': webhook_handlers.PushEventHandler,
+        'pull_request': webhook_handlers.PullRequestEventHandler,
     }
 
     def __init__(self, request: HttpRequest):
@@ -24,7 +25,7 @@ class WebhookDistributor:
         content_validator = WebhookContentValidator()
         if 'X-GitHub-Event' in self.request.headers:
             print(self.request.headers['X-GitHub-Event'])
-            payload = self._load_body_as_json(self.request.body)
+            payload = json.loads(self.request.body)
             if content_validator.validate(self.request.body,
                                           self.request.headers['X-Hub-Signature'].replace('sha1=', '')):
                 print(json.dumps(payload, indent=4, sort_keys=True))  # TODO: Remove this after debug done
@@ -51,6 +52,3 @@ class WebhookDistributor:
 
     def get_response(self) -> dict:
         return self.response
-
-    def _load_body_as_json(self, body):
-        return json.loads(body.decode())

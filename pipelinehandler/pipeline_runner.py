@@ -3,6 +3,7 @@ import os
 import subprocess
 import time
 import uuid
+from subprocess import Popen
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from django.utils.timezone import now
@@ -21,17 +22,22 @@ class PipeLineRunner:
     watchers = ThreadPoolExecutor(max_workers=10)
     executor = ThreadPoolExecutor(max_workers=3)
 
-    def __init__(self, pipeline: PipeLine, branch="master", revision="", installation_id=-1):
+    def __init__(self, pipeline: PipeLine, branch="master", revision="", installation_id=-1, pull_request_number=-1):
         self.pipeline = pipeline
         self.branch = branch
         self.revision = revision
         self.installation_id = installation_id
+        self.pull_request_number = pull_request_number
 
     def run_pipeline(self):
         try:
             script = PipeLineScriptParser().parse(self.pipeline.script)
-            command_generator = PipeLineCommandGenerator(parsed_script=script, repository=self.pipeline.repo_url,
-                                                         revision=self.revision)
+            if self.pull_request_number != -1:
+                command_generator = PipeLineCommandGenerator(parsed_script=script, repository=self.pipeline.repo_url,
+                                                             number=self.pull_request_number)
+            else:
+                command_generator = PipeLineCommandGenerator(parsed_script=script, repository=self.pipeline.repo_url,
+                                                             branch=self.branch, revision=self.revision)
             commands = command_generator.get_commands()
             last_results = PipeLineResult.objects.filter(pipeline=self.pipeline).last()
             version = last_results.version + 1 if last_results else 1
@@ -45,12 +51,16 @@ class PipeLineRunner:
                 futures.append(future)
 
             if self.pipeline.is_github_pipeline:
-                self.watchers.submit(self.start_watcher, pipeline_results, futures)  # TODO: Add local watcher
+                self.watchers.submit(self.start_watcher, pipeline_results, futures)
         except ValueError as e:
-            self.set_ci_status(status=GithubEventStatus.FAILURE, description=str(e))
+            if self.pipeline.is_github_pipeline:
+                self.set_ci_status(status=GithubEventStatus.FAILURE, description=str(e))
 
     def create_entry_and_start_pipeline(self, command, pipeline, version, subversion):
-        pipeline_result = PipeLineResult.objects.create()
+        pipeline_result = PipeLineResult.objects.create(installation_id=self.installation_id,
+                                                        pull_request_number=self.pull_request_number,
+                                                        revision=self.revision, branch=self.branch,
+                                                        type="Pull Request" if self.pull_request_number != -1 else 'Push')
         pipeline_result.triggered_by = pipeline.user.username
         pipeline_result.version = version
         pipeline_result.subversion = subversion
@@ -62,8 +72,7 @@ class PipeLineRunner:
         future = self.executor.submit(self.run_docker_process, command, pipeline_result)
         return pipeline_result, future
 
-    @staticmethod
-    def run_docker_process(command, pipeline_result: PipeLineResult):
+    def run_docker_process(self, command, pipeline_result: PipeLineResult):
         pipeline_result.build_start_time = now()
         pipeline_result.status = PipeLineStatus.IN_PROGRESS.value
         pipeline_result.save()
@@ -71,8 +80,8 @@ class PipeLineRunner:
         os.makedirs(output_file_path, exist_ok=True)
         output_file_name = "{}.log".format(uuid.uuid4())
 
-        with open(os.path.join(output_file_path, output_file_name), 'w+') as output:
-            with subprocess.Popen(command, stderr=subprocess.STDOUT, stdout=output) as process:
+        with open(os.path.join(output_file_path, output_file_name), 'wb+') as output:
+            with Popen(command, stderr=subprocess.STDOUT, stdout=output) as process:
 
                 process.wait()
                 return_code = process.returncode
@@ -104,15 +113,16 @@ class PipeLineRunner:
                 try:
                     raise future.exception()
                 except Exception as e:
-                    logging.exception('Exception during pipeline.', exc_info=True)
+                    logging.exception('Exception during pipeline.')
 
+        context = "Jeeves CI - {}".format(pipeline_results[0].type)
         if any(pipeline_result.status == PipeLineStatus.FAILED.value for
                pipeline_result in pipeline_results):
             logging.debug("setting pipeline to failed")
-            self.set_ci_status(status=GithubEventStatus.FAILURE, description="PipeLine failed.")
+            self.set_ci_status(context=context, status=GithubEventStatus.FAILURE, description="PipeLine failed.")
         else:
             logging.debug("setting pipeline to success")
-            self.set_ci_status(status=GithubEventStatus.SUCCESS, description="PipeLine successful.")
+            self.set_ci_status(context=context, status=GithubEventStatus.SUCCESS, description="PipeLine successful.")
 
     def set_ci_status(self, commit: str = None, status: GithubEventStatus = GithubEventStatus.SUCCESS,
                       context: str = "Jeeves-CI", description: str = ""):
@@ -121,12 +131,9 @@ class PipeLineRunner:
             commit = self.revision
         client = self.get_github_client()
         repository = self.get_repository(client)
-        logging.debug("got repository")
         print(repository.create_status(commit, status.value, context=context, description=description))
-        logging.debug("set ci status")
 
     def get_repository(self, github_client):
-        logging.debug("Getting repository.")
         try:
             return github_client.repository(self.pipeline.user.username, self.pipeline.name)
         except KeyError:
@@ -139,5 +146,4 @@ class PipeLineRunner:
 
         client = github3.GitHub()
         client.login_as_app_installation(GITHUB_PRIVATE_KEY.encode(), GITHUB_APP_IDENTIFIER, self.installation_id)
-        logging.debug("Logged in as an installation.")
         return client

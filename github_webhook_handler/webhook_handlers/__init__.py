@@ -2,3 +2,4 @@ from .github_event_handler import GitHubEventHandler
 from .push_event_handler import PushEventHandler
 from .installation_event_handler import InstallationEventHandler
 from .installation_repositories_event_handler import InstallationRepositoriesEventHandler
+from .pull_request_event_handler import PullRequestEventHandler
