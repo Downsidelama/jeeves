@@ -75,10 +75,11 @@ class PipeLineRunner:
     def run_docker_process(self, command, pipeline_result: PipeLineResult):
         pipeline_result.build_start_time = now()
         pipeline_result.status = PipeLineStatus.IN_PROGRESS.value
+        pipeline_result.log_file_name = uuid.uuid4()
         pipeline_result.save()
         output_file_path = os.path.join(settings.BASE_DIR, 'logs')
         os.makedirs(output_file_path, exist_ok=True)
-        output_file_name = "{}.log".format(uuid.uuid4())
+        output_file_name = "{}.log".format(pipeline_result.log_file_name)
 
         with open(os.path.join(output_file_path, output_file_name), 'wb+') as output:
             with Popen(command, stderr=subprocess.STDOUT, stdout=output) as process:

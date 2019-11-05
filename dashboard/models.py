@@ -41,5 +41,6 @@ class PipeLineResult(models.Model):
     pull_request_number = models.IntegerField(default=-1)
     build_start_time = models.DateTimeField(null=True, default=None)
     build_end_time = models.DateTimeField(null=True, default=None)
+    log_file_name = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)
