@@ -2,11 +2,7 @@ let current_size = 0;
 let current_line = 1;
 let auto_scroll = false;
 let scrolled_to_hash = false;
-
-function query_next() {
-    // Evaluate whether the queries should continue or not.
-    return true;
-}
+let query_next = true;
 
 function scroll_to(index) {
     $('html, body').animate({
@@ -68,6 +64,9 @@ function refresh_log() {
         dataType: 'json'
     }).done(
         function (data) {
+            if (data['query_next'] === false) {
+                query_next = false;
+            }
             current_size = data['current_size'];
             if (data['text'].length > 0) {
                 let text = data['text'];
@@ -92,7 +91,7 @@ function refresh_log() {
                 }
                 scrolled_to_hash = true;
             }
-            if (query_next()) {
+            if (query_next) {
                 setTimeout(refresh_log, 500);
             }
         }

@@ -18,22 +18,7 @@ import timeago
 
 from jeeves import settings
 
-
-def livelog(request):
-    return render(request, 'dashboard/livelog/livelog.html')
-
-
 chars_to_filter = ['[0K', '[?25l ', '[K', '[?25h', '', '[?25l']
-
-
-def livelog_show(request, pk, current_size):
-    with open(os.path.join(settings.BASE_DIR, f'logs/{pk}.log'), 'rb') as f:
-        f.seek(current_size)
-        t = f.read().decode()
-        t = re.sub(r'\x1b\[[0-9;]*m', '', t)
-        current_size = f.tell()
-        dumps = json.dumps({"text": f"{t}", "current_size": current_size})
-        return HttpResponse(dumps)
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -214,7 +199,9 @@ class LiveLog(View):
                 for chars in chars_to_filter:
                     t = t.replace(chars, '')
                 current_size = f.tell()
-                dumps = json.dumps({"text": f"{t}", "current_size": current_size})
+                dumps = json.dumps({"text": f"{t}", "current_size": current_size,
+                                    "query_next": pipeline_result.status not in [PipeLineStatus.SUCCESS.value,
+                                                                                 PipeLineStatus.FAILED.value]})
                 return HttpResponse(dumps)
         except:
-            return HttpResponse('{"text": "", "current_size": 0}')
+            return HttpResponse('{"text": "", "current_size": 0, "query_next": true}')
