@@ -89,6 +89,8 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
 class PipeLineDetailsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
+        if pipeline.is_github_pipeline:
+            return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pipeline.pk}))
         running_pipelines = PipeLineResult \
                                 .objects \
                                 .filter(Q(pipeline=pk)
