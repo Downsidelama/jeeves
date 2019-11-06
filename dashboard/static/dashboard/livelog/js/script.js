@@ -121,11 +121,8 @@ function refresh_status() {
                 build_card_class = "error-card";
             }
 
-            console.log(build_card_class);
-
             let $buildCard = $("#build_card");
             if (!$buildCard.hasClass(build_card_class)) {
-                console.log("doesnt have class");
                 $buildCard.removeClass("success-card").removeClass("in-progress-card")
                     .removeClass("error-card").addClass(build_card_class);
             }
