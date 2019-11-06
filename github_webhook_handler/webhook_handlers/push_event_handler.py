@@ -17,21 +17,22 @@ class PushEventHandler(BuildEventHandler):
 
     def send_to_worker(self):
         try:
-            config_file_content = ConfigFileRetriever().get_push_style(self.payload['after'],
-                                                                       self.payload['repository']['owner']['login'],
-                                                                       self.payload['repository']['name'])
-            post_body = {
-                'config_file_content': config_file_content,
-                'pipeline_id': PipeLine.objects.get(repository_id=self.payload['repository']['id']).pk,
-                'commit_sha': self.payload['after'],
-                'html_url': self.payload['repository']['html_url'],
-                'installation_id': self.payload['installation']['id'],
-                'ref': self.payload['ref'],
-            }
+            if self.payload['after'] != "0000000000000000000000000000000000000000":
+                config_file_content = ConfigFileRetriever().get_push_style(self.payload['after'],
+                                                                           self.payload['repository']['owner']['login'],
+                                                                           self.payload['repository']['name'])
+                post_body = {
+                    'config_file_content': config_file_content,
+                    'pipeline_id': PipeLine.objects.get(repository_id=self.payload['repository']['id']).pk,
+                    'commit_sha': self.payload['after'],
+                    'html_url': self.payload['repository']['html_url'],
+                    'installation_id': self.payload['installation']['id'],
+                    'ref': self.payload['ref'],
+                }
 
-            worker = self.get_free_worker()
+                worker = self.get_free_worker()
 
-            self.url_loader.request('POST', worker['url'], body=json.dumps(post_body))
+                self.url_loader.request('POST', worker['url'], body=json.dumps(post_body))
 
             return True
         except (KeyError, ValueError):
