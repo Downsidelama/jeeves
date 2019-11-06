@@ -162,7 +162,6 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
             results = all_time / len(filtered)
         else:
             results = 1
-        print("avg: {}".format(results))
         return results
 
 
