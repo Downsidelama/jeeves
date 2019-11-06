@@ -7,8 +7,10 @@ from django.db.models import Q
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from dashboard.forms import PipeLineModelForm, CustomUserCreationForm
 from dashboard.models import PipeLine, PipeLineResult
@@ -132,10 +134,8 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
             build.created_at_hr = timeago.format(build.created_at, now())
             progress = 100
             if build.status not in [PipeLineStatus.IN_PROGRESS.name, PipeLineStatus.IN_QUEUE.name]:
-                print('elapsed')
                 build.elapsed_time = timeago.format(build.build_start_time, build.build_end_time).replace(' ago', '')
             else:
-                print('time')
                 current_run_time = (now() - build.created_at).total_seconds()
                 progress = int(current_run_time * 100 / average_runtime)
                 if progress > 99:
@@ -168,6 +168,31 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
 
 class PipeLineBuildDetailsView(View):
     def get(self, request, pk, id):
+        pipeline, pipeline_result = self.get_pipeline_details(id, pk)
+        context = {
+            'pipeline': pipeline,
+            'pipeline_result': pipeline_result
+        }
+        return render(request, 'dashboard/pipeline/pipeline_build_details.html', context=context)
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, pk, id):
+        """Getting some status data"""
+        pipeline, pipeline_result = self.get_pipeline_details(id, pk)
+
+        context = {
+            'query_next': pipeline_result.status not in [PipeLineStatus.SUCCESS.value,
+                                                         PipeLineStatus.FAILED.value],
+            'status': pipeline_result.status,
+            'runtime': pipeline_result.elapsed_time,
+            'created_at_hr': pipeline_result.created_at_hr,
+        }
+        return HttpResponse(json.dumps(context))
+
+    def get_pipeline_details(self, id, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         pipeline_result = get_object_or_404(PipeLineResult, pk=id)
         if pipeline_result.pipeline != pipeline:
@@ -178,11 +203,7 @@ class PipeLineBuildDetailsView(View):
                                                           pipeline_result.build_end_time).replace(' ago', '')
         else:
             pipeline_result.elapsed_time = timeago.format(pipeline_result.created_at, now()).replace(' ago', '')
-        context = {
-            'pipeline': pipeline,
-            'pipeline_result': pipeline_result
-        }
-        return render(request, 'dashboard/pipeline/pipeline_build_details.html', context=context)
+        return pipeline, pipeline_result
 
 
 class LiveLog(View):

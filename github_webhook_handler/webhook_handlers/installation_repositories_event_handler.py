@@ -31,9 +31,10 @@ class InstallationRepositoriesEventHandler(GitHubEventHandler):
         for repository in repositories_added:
             name = repository['name']
             repository_id = repository['id']
+            repo_url = repository['html_url']
             pipelines = PipeLine.objects.filter(repository_id=repository_id)
             if len(pipelines) == 0:
-                repo = self._register_repository(user=user, name=name, repository_id=repository_id)
+                repo = self._register_repository(user=user, name=name, repository_id=repository_id, repo_url=repo_url)
                 logging.debug("Adding repository: {} with ID: {}".format(repo.name, repo.pk))
             else:
                 pipelines[0].is_active = True

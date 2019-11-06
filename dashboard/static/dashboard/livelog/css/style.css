@@ -10,6 +10,8 @@ body {
     color: #dbdceb;
     font-weight: 500;
     font-family: 'Share Tech Mono', monospace;
+    line-height: 50px;
+    text-align: center;
 }
 
 .log-body {

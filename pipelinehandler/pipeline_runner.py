@@ -45,8 +45,10 @@ class PipeLineRunner:
             pipeline_results = []
             futures = []
             for subversion, command in enumerate(commands):
+                language = script['language']
+                language_version = script[language][subversion]
                 pipeline_result, future = self.create_entry_and_start_pipeline(command, self.pipeline, version,
-                                                                               subversion)
+                                                                               subversion, language, language_version)
                 pipeline_results.append(pipeline_result)
                 futures.append(future)
 
@@ -56,7 +58,7 @@ class PipeLineRunner:
             if self.pipeline.is_github_pipeline:
                 self.set_ci_status(status=GithubEventStatus.FAILURE, description=str(e))
 
-    def create_entry_and_start_pipeline(self, command, pipeline, version, subversion):
+    def create_entry_and_start_pipeline(self, command, pipeline, version, subversion, language, language_version):
         pipeline_result = PipeLineResult.objects.create(installation_id=self.installation_id,
                                                         pull_request_number=self.pull_request_number,
                                                         revision=self.revision, branch=self.branch,
@@ -68,6 +70,7 @@ class PipeLineRunner:
         pipeline_result.config = pipeline.script
         pipeline_result.command = command
         pipeline_result.status = PipeLineStatus.IN_QUEUE.value
+        pipeline_result.language = language + " " + language_version
         pipeline_result.save()
         future = self.executor.submit(self.run_docker_process, command, pipeline_result)
         return pipeline_result, future

@@ -20,9 +20,12 @@ class InstallationEventHandler(GitHubEventHandler):
                 for repository in repositories:
                     name = repository['name']
                     repository_id = repository['id']
+                    repo_url = repository['html_url']
                     pipelines = PipeLine.objects.filter(repository_id=repository_id)
+
                     if len(pipelines) == 0:
-                        repo = self._register_repository(user=user, name=name, repository_id=repository_id)
+                        repo = self._register_repository(user=user, name=name, repository_id=repository_id,
+                                                         repo_url=repo_url)
                         logging.debug("Adding repository: {} with ID: {}".format(repo.name, repo.pk))
                     else:
                         logging.debug("This repository is already in the database.")
