@@ -1,5 +1,6 @@
 import json
 import os
+from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
@@ -138,11 +139,12 @@ class TestHMACValidator(TestCase):
 class TestWebhookContentValidator(TestCase):
     def setUp(self):
         self.validator = WebhookContentValidator()
+        os.putenv('GITHUB_WEBHOOK_SECRET', "SECRET")
 
     def test_correct_input_valid(self):
         self.assertTrue(
-            self.validator.validate(message=b"TEST_MESSAGE", _hash='73c3547fc2d9d1463abf40f446dc38028747f1ca'))
+            self.validator.validate(message=b"TEST_MESSAGE", _hash='530fab7c50551671962b481424b6e5624c278512'))
 
     def test_incorrect_input_invalid(self):
         self.assertFalse(
-            self.validator.validate(message=b"TEST_MESSAGE", _hash='73c3547fc2d9d1463abf40f446dc38028747f1cb'))
+            self.validator.validate(message=b"TEST_MESSAGE", _hash='530fab7c50551671962b481424b6e5624c278513'))
