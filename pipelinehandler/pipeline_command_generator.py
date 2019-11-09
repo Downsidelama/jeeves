@@ -16,11 +16,15 @@ class PipeLineCommandGenerator:
         cmds = []
         language = self.parsed_script['language']
         for current_version in self.parsed_script[language]:
+            if language == "java":
+                tag_name = "openjdk"
+            else:
+                tag_name = language
             uid = str(uuid.uuid4())
             version = current_version + '-alpine'
             commands_list = self._generate_pre_commands() + self.parsed_script['script']
             commands = ' && '.join(commands_list)
-            command = f"docker run --name {uid} -it --rm {language}:{version} /bin/sh -c".split(' ')
+            command = f"docker run --name {uid} -it --rm {tag_name}:{version} /bin/sh -c".split(' ')
             command.append(commands)
             cmds.append(command)
         return cmds
