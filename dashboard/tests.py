@@ -196,3 +196,10 @@ class TestProfileView(TestCase):
                           'test'})
         user = get_user_model().objects.all().first()
         self.assertTrue(user.check_password('super_secret_pwd'))
+
+    def test_password_change_is_unsuccessful(self):
+        self.client.post(reverse('dashboard:profile'),
+                         {'new_password1': 'super_secret_pwd', 'new_password2': 'super_secret_pwd', 'old_password':
+                             'not_my_pw'})
+        user = get_user_model().objects.all().first()
+        self.assertTrue(user.check_password('test'))
