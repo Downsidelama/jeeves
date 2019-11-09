@@ -17,8 +17,6 @@ class TestViews(TestCase):
 
     def setUp(self) -> None:
         self.client = Client()
-        self.browser = webdriver.Firefox()
-        self.browser.implicitly_wait(3)
         get_user_model().objects.create_user(username='test', password='test')
 
     def login(self):
@@ -69,7 +67,7 @@ class TestViews(TestCase):
         response = self.client.get(reverse('dashboard:pipeline_build_livelog',
                                            kwargs={'pk': pipeline_result.pipeline.pk, 'id': pipeline_result.pk,
                                                    'current_size': 0}))
-        self.assertIn('test message', response.content.decode())
+        self.assertContains(response, 'test message')
         pipeline_result.log_file_name = "doesnt exists"
         pipeline_result.save()
 
