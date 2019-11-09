@@ -1,3 +1,4 @@
+import json
 import time
 
 from django.contrib.auth import get_user_model
@@ -8,7 +9,7 @@ from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-from dashboard.models import PipeLine
+from dashboard.models import PipeLine, PipeLineResult
 
 
 class TestViews(TestCase):
@@ -49,6 +50,46 @@ class TestViews(TestCase):
                                            script="test")
         response = self.client.get(pipeline.get_absolute_url())
         self.assertContains(response, 'DESC')
+
+    def test_livelog_return_correct_file_content(self):
+        user = get_user_model().objects.all().first()
+        pipeline = PipeLine.objects.create(user=user, name="TEST", description="DESC", repo_url="http://google.com",
+                                           script="test")
+        pipeline.save()
+        pipeline_result = PipeLineResult.objects.create(pipeline=pipeline, language='a', revision='', branch='',
+                                                        installation_id=1,
+                                                        log_file_name='test')
+        pipeline_result.save()
+        with open('logs/test.log', 'w+') as f:
+            f.write("test message")
+        response = self.client.get(reverse('dashboard:pipeline_build_livelog',
+                                           kwargs={'pk': pipeline_result.pipeline.pk, 'id': pipeline_result.pk,
+                                                   'current_size': 0}))
+        self.assertIn('test message', response.content.decode())
+        pipeline_result.log_file_name = "doesnt exists"
+        pipeline_result.save()
+
+        response = self.client.get(reverse('dashboard:pipeline_build_livelog',
+                                           kwargs={'pk': pipeline_result.pipeline.pk, 'id': pipeline_result.pk,
+                                                   'current_size': 0}))
+        self.assertEquals('', json.loads(response.content.decode())['text'])
+
+    def test_livelog_ids_mismatch(self):
+        user = get_user_model().objects.all().first()
+        PipeLine.objects.create(user=user, name="TEST", description="DESC", repo_url="http://google.com",
+                                script="test").save()
+        pipeline = PipeLine.objects.create(user=user, name="TEST", description="DESC", repo_url="http://google.com",
+                                           script="test")
+        pipeline.save()
+
+        pipeline_result = PipeLineResult.objects.create(pipeline=pipeline, language='a', revision='', branch='',
+                                                        installation_id=1,
+                                                        log_file_name='test')
+        pipeline_result.save()
+        response = self.client.get(reverse('dashboard:pipeline_build_livelog',
+                                           kwargs={'pk': 1, 'id': pipeline_result.pk,
+                                                   'current_size': 0}))
+        self.assertEquals(404, response.status_code)
 
 
 class TestRegistration(StaticLiveServerTestCase):

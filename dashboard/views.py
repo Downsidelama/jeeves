@@ -196,7 +196,7 @@ class PipeLineBuildDetailsView(View):
     def get_pipeline_details(self, id, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         pipeline_result = get_object_or_404(PipeLineResult, pk=id)
-        if pipeline_result.pipeline != pipeline:
+        if pipeline_result.pipeline.pk != pipeline.pk:
             raise Http404
         pipeline_result.created_at_hr = timeago.format(pipeline_result.created_at, now())
         if pipeline_result.status not in [PipeLineStatus.IN_PROGRESS.value, PipeLineStatus.IN_QUEUE.value]:
@@ -211,7 +211,7 @@ class LiveLog(View):
     def get(self, request, pk, id, current_size):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         pipeline_result = get_object_or_404(PipeLineResult, pk=id)
-        if pipeline_result.pipeline != pipeline:
+        if pipeline_result.pipeline.pk != pipeline.pk:
             raise Http404
         try:
             with open(os.path.join(settings.BASE_DIR, f'logs/{pipeline_result.log_file_name}.log'), 'rb') as f:
@@ -226,4 +226,4 @@ class LiveLog(View):
                                                                                  PipeLineStatus.FAILED.value]})
                 return HttpResponse(dumps)
         except:
-            return HttpResponse('{"text": "", "current_size": 0, "query_next": true}')
+            return HttpResponse('{"text": "", "current_size": 0, "query_next": true}', content_type='application/json')
