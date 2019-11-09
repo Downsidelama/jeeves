@@ -147,7 +147,7 @@ class TestRegistration(StaticLiveServerTestCase):
 
         self.register_user(password, username)
         self.browser.find_element_by_class_name('invalid-feedback')
-        self.assertIn('This password is too short. It must contain at least 8 characters.', self.browser.page_source)
+        self.assertIn('This password is too short. It must contain at least 9 characters.', self.browser.page_source)
 
     def test_registration_empty_fields_error_displayed(self):
         username = ''
