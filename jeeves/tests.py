@@ -125,11 +125,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         try:
             WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'error-card')))
         except TimeoutException:
-            try:
-                WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'success-card')))
-            except TimeoutException:
-                print(self.browser.page_source)
-                raise
+            WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'success-card')))
 
         # Delete pipeline
 
