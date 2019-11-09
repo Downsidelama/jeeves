@@ -81,6 +81,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         send_button.click()
 
         self.assertTrue('language: java' in self.browser.page_source)
+        pipeline_page_url = self.browser.current_url
 
         # I forgot something to fill in
 
@@ -117,6 +118,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         view_pipeline.click()
 
         # View my first build
+        self.assertIn('Started:', self.browser.page_source)
         build10 = self.browser.find_element_by_partial_link_text('1.0')
         build10.click()
 
@@ -124,3 +126,14 @@ class NewVisitorTest(StaticLiveServerTestCase):
             WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'error-card')))
         except TimeoutException:
             WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'success-card')))
+
+        # Delete pipeline
+
+        self.browser.get(pipeline_page_url)
+        del_button = self.browser.find_element_by_partial_link_text('Delete pipeline')
+        del_button.click()
+
+        yes_button = self.browser.find_element_by_class_name('btn-danger')
+        yes_button.click()
+
+        self.assertIn('Add a pipeline!', self.browser.page_source)
