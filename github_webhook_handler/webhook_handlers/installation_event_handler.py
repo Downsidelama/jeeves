@@ -20,8 +20,8 @@ class InstallationEventHandler(GitHubEventHandler):
                 for repository in repositories:
                     name = repository['name']
                     repository_id = repository['id']
-                    repo_url = repository['html_url']
-                    description = repository['description']
+                    repo_url = 'https://github.com/{}'.format(repository['full_name'])
+                    description = "Automatically generated pipeline for {}".format(repository['full_name'])
                     pipelines = PipeLine.objects.filter(repository_id=repository_id)
 
                     if len(pipelines) == 0:
