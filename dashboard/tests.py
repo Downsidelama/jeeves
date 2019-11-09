@@ -17,6 +17,8 @@ class TestViews(TestCase):
 
     def setUp(self) -> None:
         self.client = Client()
+        self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(3)
         get_user_model().objects.create_user(username='test', password='test')
 
     def login(self):
@@ -92,6 +94,34 @@ class TestViews(TestCase):
                                            kwargs={'pk': 1, 'id': pipeline_result.pk,
                                                    'current_size': 0}))
         self.assertEquals(404, response.status_code)
+
+
+class TestViewsGeck(StaticLiveServerTestCase):
+    def setUp(self):
+        get_user_model().objects.create_user(username='test', password='test')
+        self.browser = webdriver.Firefox()
+        self.browser.implicitly_wait(3)
+
+    def tearDown(self):
+        self.browser.quit()
+
+    def test_build_details_displays_correct_data(self):
+        user = get_user_model().objects.all().first()
+        pipeline = PipeLine.objects.create(user=user, name="TEST", description="DESC", repo_url="http://google.com",
+                                           script="test")
+        pipeline.save()
+        pipeline_result = PipeLineResult.objects.create(pipeline=pipeline, language='a', revision='', branch='',
+                                                        installation_id=1,
+                                                        log_file_name='test')
+        pipeline_result.save()
+        os.makedirs('logs', exist_ok=True)
+        with open('logs/test.log', 'w+') as f:
+            f.write("test message")
+
+        self.browser.get(self.live_server_url + reverse('dashboard:pipeline_build_details', kwargs={'pk': pipeline.pk,
+                                                                                                    'id': pipeline_result.pk}))
+        time.sleep(1)
+        self.assertIn('test&nbsp;message', self.browser.page_source)
 
 
 class TestRegistration(StaticLiveServerTestCase):
