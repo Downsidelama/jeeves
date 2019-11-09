@@ -17,6 +17,7 @@ class TestViews(TestCase):
 
     def setUp(self) -> None:
         self.client = Client()
+        get_user_model().objects.all().delete()
         get_user_model().objects.create_user(username='test', password='test')
 
     def login(self):
@@ -146,7 +147,7 @@ class TestRegistration(StaticLiveServerTestCase):
 
         self.register_user(password, username)
         self.browser.find_element_by_class_name('invalid-feedback')
-        self.assertIn('This password is too short. It must contain at least 8 characters.', self.browser.page_source)
+        self.assertIn('This password is too short. It must contain at least 9 characters.', self.browser.page_source)
 
     def test_registration_empty_fields_error_displayed(self):
         username = ''
@@ -167,3 +168,38 @@ class TestRegistration(StaticLiveServerTestCase):
         password1.send_keys(password)
         password2.send_keys(password)
         self.browser.find_element_by_name('reg_form').submit()
+
+
+class TestProfileView(TestCase):
+    def setUp(self):
+        self.client = Client()
+        get_user_model().objects.all().delete()
+        get_user_model().objects.create_user(username='test', password='test')
+        self.client.login(username='test', password='test')
+
+    def test_view_has_both_forms(self):
+        response = self.client.get(reverse('dashboard:profile'))
+        self.assertContains(response, 'profile_form')
+        self.assertContains(response, 'password_form')
+
+    def test_details_change_successful(self):
+        self.client.post(reverse('dashboard:profile'),
+                                 {'last_name': 'lastname', 'first_name': 'firstname', 'email': 'email@mail.com'})
+        user = get_user_model().objects.all().first()
+        self.assertEquals(user.first_name, 'firstname')
+        self.assertEquals(user.last_name, 'lastname')
+        self.assertEquals(user.email, 'email@mail.com')
+
+    def test_password_change_is_successful(self):
+        self.client.post(reverse('dashboard:profile'),
+                         {'new_password1': 'super_secret_pwd', 'new_password2': 'super_secret_pwd', 'old_password':
+                          'test'})
+        user = get_user_model().objects.all().first()
+        self.assertTrue(user.check_password('super_secret_pwd'))
+
+    def test_password_change_is_unsuccessful(self):
+        self.client.post(reverse('dashboard:profile'),
+                         {'new_password1': 'super_secret_pwd', 'new_password2': 'super_secret_pwd', 'old_password':
+                             'not_my_pw'})
+        user = get_user_model().objects.all().first()
+        self.assertTrue(user.check_password('test'))
