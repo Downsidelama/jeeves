@@ -59,7 +59,8 @@ class PipeLineRunner:
                 self.set_ci_status(status=GithubEventStatus.FAILURE, description=str(e))
 
     def create_entry_and_start_pipeline(self, command, pipeline, version, subversion, language, language_version):
-        pipeline_result = PipeLineResult.objects.create(installation_id=self.installation_id,
+        pipeline_result = PipeLineResult.objects.create(pipeline=pipeline,
+                                                        installation_id=self.installation_id,
                                                         pull_request_number=self.pull_request_number,
                                                         revision=self.revision, branch=self.branch,
                                                         type="Pull Request" if self.pull_request_number != -1 else 'Push')
