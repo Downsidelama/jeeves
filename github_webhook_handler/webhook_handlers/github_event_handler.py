@@ -104,9 +104,9 @@ class GitHubEventHandler:
         self.response['message'] = message
 
     @staticmethod
-    def _register_repository(user, name, repository_id):
+    def _register_repository(user, name, repository_id, repo_url, description):
         pipeline = PipeLine.objects.create(user=user, name=name, is_github_pipeline=True,
-                                           repository_id=repository_id)
+                                           repository_id=repository_id, repo_url=repo_url, description=description)
         pipeline.save()
         return pipeline
 

@@ -1,0 +1,77 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+
+.log-header {
+    background-color: #161719;
+    height: 50px;
+    width: 100%;
+    color: #dbdceb;
+    font-weight: 500;
+    font-family: 'Share Tech Mono', monospace;
+    line-height: 50px;
+    text-align: center;
+}
+
+.log-body {
+    background-color: #1B1D1F;
+    color: #dbdceb;
+    font-weight: 500;
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 50px;
+}
+
+.log-line {
+    padding-left: 30px;
+    padding-right: 20px;
+    display: flex;
+}
+
+.log-line:hover {
+    background-color: #393B3D;
+}
+
+.log-line a {
+    min-width: 25px;
+    height: 100%;
+    color: #464C53;
+    box-sizing: border-box;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+    margin-right: 10px;
+    text-align: right;
+}
+
+.log-line span {
+    box-sizing: border-box;
+    min-width: 90%;
+    word-wrap: break-word;
+}
+
+.wrapper {
+    width: 70%;
+    margin: auto;
+}
+
+@media only screen and (max-width: 768px) {
+    .wrapper {
+        width: 100%;
+    }
+
+}
+
+.scroll-log {
+    height: 16px;
+    width: 150px;
+    position: sticky;
+    margin-right: 15px;
+    float: right;
+    top: 15px;
+    cursor: pointer;
+    background-color: #1B1D1F;
+}

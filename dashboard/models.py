@@ -19,7 +19,6 @@ class PipeLine(models.Model):
     #  Github pipeline stuff
     is_active = models.BooleanField(default=True)
     repository_id = models.IntegerField(null=True, default=None, unique=True)
-    commit_sha = models.CharField(max_length=40, null=True, default=None)
 
     def get_absolute_url(self):
         return reverse('dashboard:view_pipeline', kwargs={'pk': self.pk})
@@ -31,6 +30,7 @@ class PipeLineResult(models.Model):
     version = models.IntegerField(default=1)
     subversion = models.IntegerField(default=1)
     command = models.TextField(default="")
+    language = models.TextField()
     status = models.IntegerField(default=PipeLineStatus.IN_PROGRESS.value)
     log = models.TextField(default="")
     config = models.TextField(default="")
@@ -41,5 +41,6 @@ class PipeLineResult(models.Model):
     pull_request_number = models.IntegerField(default=-1)
     build_start_time = models.DateTimeField(null=True, default=None)
     build_end_time = models.DateTimeField(null=True, default=None)
+    log_file_name = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True)

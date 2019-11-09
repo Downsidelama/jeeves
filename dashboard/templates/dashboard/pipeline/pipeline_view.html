@@ -33,7 +33,7 @@
     {% endif %}
     <hr>
     {% for running_pipeline in running_pipelines %}
-        {% include 'dashboard/pipeline_build_card.html' with build_number=running_pipeline.version subversion=running_pipeline.subversion timeago=running_pipeline.elapsed_time %}
+        {% include 'dashboard/pipeline/pipeline_build_card.html' with build_number=running_pipeline.version subversion=running_pipeline.subversion timeago=running_pipeline.elapsed_time %}
     {% endfor %}
     <a href="{{ pipeline.get_absolute_url }}builds/" class="btn btn-block btn-green mb-6">
         <i class="fe fe-info mr-2"></i>View all build</a>

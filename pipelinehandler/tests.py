@@ -122,6 +122,7 @@ class TestPipeLineRunner(TestCase):
 
         popen_mock.return_value = mock.MagicMock()
         popen_mock.return_value.__enter__.return_value.returncode = 0
+        PipeLineRunner.get_repository = mock.MagicMock()
 
         pipeline_runner = PipeLineRunner(pipeline, revision=revision, installation_id=installation_id, branch=branch)
 

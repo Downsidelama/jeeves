@@ -1,0 +1,57 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% block body %}
+    <div class="my-3 my-md-5">
+        <div class="container">
+            <div id="build_card" class="card build-card{% if pipeline_result.status == 1 or pipeline_result.status == 4 %} in-progress-card{% elif pipeline_result.status == 2 %} error-card{% elif pipeline_result.status == 3 %} success-card{% endif %}"
+                 style="width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ pipeline.name }} - Build
+                        #{{ pipeline_result.version }}.{{ pipeline_result.subversion }}</h5>
+                    <div class="separator"></div>
+                    <div class="f-row">
+
+                        <div class="column">
+                            <ul>
+                                <li>
+                                    <i class="fe fe-git-commit"></i> <a target="_blank" href="{{ pipeline.repo_url }}/commit/{{ pipeline_result.revision }}" class="card-link">Commit <span
+                                        class="text-monospace">{{ pipeline_result.revision|slice:":10" }}</span></a>
+                                </li>
+                                <li>
+                                    <i class="fe fe-git-branch"></i> <a target="_blank" href="{{ pipeline.repo_url }}/tree/{{ pipeline_result.branch }}" class="card-link">Branch <span
+                                        class="text-monospace">{{ pipeline_result.branch }}</span></a>
+                                </li>
+                                {% if pipeline_result.pull_request_number != -1 %}
+                                <li>
+                                    <i class="fe fe-git-pull-request"></i> <a target="_blank" href="{{ pipeline.repo_url }}/pull/{{ pipeline_result.pull_request_number }}" class="card-link">Pull request
+                                <span class="text-monospace">#{{ pipeline_result.pull_request_number }}</span></a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="column">
+                            <p class="card-text" id="runtime"><i class="fe fe-clock"></i> Ran for {{ pipeline_result.elapsed_time }}
+                            </p>
+                            <p class="card-text" id="start_time"><i class="fe fe-calendar"></i> {{ pipeline_result.created_at_hr }}</p>
+                        </div>
+                    </div>
+                    <div class="separator"></div>
+                    <p class="card-text"><i class="fe fe-codepen"></i> Alpine linux</p>
+                    <p class="card-text"><i class="fe fe-aperture"></i> {{ pipeline_result.language }}</p>
+                </div>
+            </div>
+
+            <!-- LiveLog -->
+            <link href="{% static 'dashboard/livelog/css/style.css' %}" rel="stylesheet"/>
+            <div class="log-header">Live log output</div>
+            <div class="log-body" id="log-body">
+                <div class="scroll-log" onclick="toggle_auto_scroll()">Auto-scroll: off</div>
+            </div>
+            <script>
+                // LiveLog settings
+                let url = "{% url 'dashboard:pipeline_build_details' pipeline.pk pipeline_result.pk %}/livelog/";
+            </script>
+            <script src="{% static 'dashboard/livelog/js/script.js' %}"></script>
+        </div>
+    </div>
+{% endblock %}
