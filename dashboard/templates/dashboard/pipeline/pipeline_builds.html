@@ -34,7 +34,7 @@
                                 {% endif %}
                             <td>
                                 <a href="{% url 'dashboard:pipeline_build_details' pipeline.pk build.pk %}">
-                                    <div>{{ build.version }}.{{ build.subversion }}</div>
+                                    {{ build.version }}.{{ build.subversion }}
                                 </a>
                             </td>
                             <td>
