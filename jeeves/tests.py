@@ -1,3 +1,4 @@
+import os
 import time
 
 from django.contrib.auth import get_user_model
@@ -122,10 +123,11 @@ class NewVisitorTest(StaticLiveServerTestCase):
         build10 = self.browser.find_element_by_partial_link_text('1.0')
         build10.click()
 
-        try:
-            WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'error-card')))
-        except TimeoutException:
-            WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'success-card')))
+        if 'JEEVES_TEST_ENV' not in os.environ:
+            try:
+                WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'error-card')))
+            except TimeoutException:
+                WebDriverWait(self.browser, 30).until(EC.element_to_be_clickable((By.CLASS_NAME, 'success-card')))
 
         # Delete pipeline
 

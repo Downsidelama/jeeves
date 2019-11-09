@@ -42,6 +42,7 @@ class PipeLineCommandGenerator:
         list_of_cmds = \
             ['apk add --no-cache git gcc libressl-dev musl-dev libffi-dev',
              'cd /root/',
+             'export JEEVES_TEST_ENV=1',
              clone_command,
              f'cd {folder}',
              ]
