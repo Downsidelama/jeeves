@@ -96,6 +96,16 @@ class TestPipeLineCommandGenerator(TestCase):
         self.assertTrue(any('--branch=master' in text for text in command[0]) and
                         any('git checkout -qf revision' in text for text in command[0]))
 
+    def test_java_gets_rewritten_to_openjdk(self):
+        parsed_script = {
+            'language': 'java',
+            'java': ['8'],
+            'script': ['java -version'],
+        }
+        command = PipeLineCommandGenerator(parsed_script, 'https://github.com/Test/Repository', branch='master',
+                                           revision='revision').get_commands()
+        self.assertTrue(any('openjdk' in text for text in command[0]))
+
 
 class TestPipeLineRunner(TestCase):
 
