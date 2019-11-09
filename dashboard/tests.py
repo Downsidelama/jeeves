@@ -17,6 +17,7 @@ class TestViews(TestCase):
 
     def setUp(self) -> None:
         self.client = Client()
+        get_user_model().objects.all().delete()
         get_user_model().objects.create_user(username='test', password='test')
 
     def login(self):
@@ -167,3 +168,24 @@ class TestRegistration(StaticLiveServerTestCase):
         password1.send_keys(password)
         password2.send_keys(password)
         self.browser.find_element_by_name('reg_form').submit()
+
+
+class TestProfileView(TestCase):
+    def setUp(self):
+        self.client = Client()
+        get_user_model().objects.all().delete()
+        get_user_model().objects.create_user(username='test', password='test')
+        self.client.login(username='test', password='test')
+
+    def test_view_has_both_forms(self):
+        response = self.client.get(reverse('dashboard:profile'))
+        self.assertContains(response, 'profile_form')
+        self.assertContains(response, 'password_form')
+
+    def test_details_change_successful(self):
+        self.client.post(reverse('dashboard:profile'),
+                                 {'last_name': 'lastname', 'first_name': 'firstname', 'email': 'email@mail.com'})
+        user = get_user_model().objects.all().first()
+        self.assertEquals(user.first_name, 'firstname')
+        self.assertEquals(user.last_name, 'lastname')
+        self.assertEquals(user.email, 'email@mail.com')

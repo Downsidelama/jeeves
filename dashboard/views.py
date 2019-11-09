@@ -2,6 +2,10 @@ import json
 import os
 import re
 
+from django.contrib import messages
+from django.contrib.auth import get_user_model, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseNotFound, Http404
@@ -66,7 +70,7 @@ class PipeLineCreateView(View, LoginRequiredMixin):
 class PipeLineUpdateView(View, LoginRequiredMixin):
     def get(self, request, pk):
         model = get_object_or_404(PipeLine, pk=pk)
-        if request.user != model.user:
+        if request.user.pk != model.user.pk:
             return redirect(reverse('dashboard:index'))
         form = PipeLineModelForm(instance=model)
         context = {'form': form, 'title': 'Edit {}'.format(model.name)}
@@ -75,7 +79,7 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
     def post(self, request, pk):
         model = get_object_or_404(PipeLine, pk=pk)
         form = PipeLineModelForm(request.POST or None, instance=model)
-        if model.user == request.user:
+        if model.user.pk == request.user.pk:
             if form.is_valid():
                 obj = form.save(commit=False)
                 obj.save()
@@ -89,68 +93,83 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
 class PipeLineDetailsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
-        if pipeline.is_github_pipeline:
-            return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pipeline.pk}))
-        running_pipelines = PipeLineResult \
-                                .objects \
-                                .filter(Q(pipeline=pk)
-                                        & Q(status=PipeLineStatus.IN_PROGRESS.value)
-                                        | Q(status=PipeLineStatus.IN_QUEUE.value)).order_by('pk') \
-                                .reverse()[:5]
+        if pipeline.user.pk == request.user.pk:
+            if pipeline.is_github_pipeline:
+                return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pipeline.pk}))
+            running_pipelines = PipeLineResult \
+                                    .objects \
+                                    .filter(Q(pipeline=pk)
+                                            & Q(status=PipeLineStatus.IN_PROGRESS.value)
+                                            | Q(status=PipeLineStatus.IN_QUEUE.value)).order_by('pk') \
+                                    .reverse()[:5]
 
-        for build in running_pipelines:
-            build.elapsed_time = timeago.format(build.created_at, now())
+            for build in running_pipelines:
+                build.elapsed_time = timeago.format(build.created_at, now())
 
-        context = {
-            'pipeline': pipeline,
-            'running_pipelines': running_pipelines
-        }
-        return render(request, 'dashboard/pipeline/pipeline_view.html', context)
+            context = {
+                'pipeline': pipeline,
+                'running_pipelines': running_pipelines
+            }
+            return render(request, 'dashboard/pipeline/pipeline_view.html', context)
+        else:
+            return redirect(reverse('login'))
 
 
+@method_decorator(login_required, name='dispatch')
 class PipeLineDeleteView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk, user=request.user)
-        if pipeline:
-            context = {'pipeline': pipeline}
-            return render(request, 'dashboard/pipeline/pipeline_delete.html', context=context)
+        if pipeline.user.pk == request.user.pk:
+            if pipeline:
+                context = {'pipeline': pipeline}
+                return render(request, 'dashboard/pipeline/pipeline_delete.html', context=context)
+            else:
+                return redirect(reverse('dashboard:index'))
         else:
-            return redirect(reverse('dashboard:index'))
+            return redirect(reverse('login'))
 
     def post(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk, user=request.user)
-        if pipeline:
-            pipeline.delete()
-        return redirect(reverse('dashboard:index'))
+        if pipeline.user.pk == request.user.pk:
+            if pipeline:
+                pipeline.delete()
+            return redirect(reverse('dashboard:index'))
+        else:
+            return redirect(reverse('login'))
 
 
+@method_decorator(login_required, name='dispatch')
 class PipeLineBuildsView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
-        pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
+        if pipeline.user.pk == request.user.pk:
+            pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
 
-        average_runtime = self._calculate_average_runtime(pipeline_builds)
+            average_runtime = self._calculate_average_runtime(pipeline_builds)
 
-        for build in pipeline_builds:
-            build.status = PipeLineStatus(build.status).name
-            build.created_at_hr = timeago.format(build.created_at, now())
-            progress = 100
-            if build.status not in [PipeLineStatus.IN_PROGRESS.name, PipeLineStatus.IN_QUEUE.name]:
-                build.elapsed_time = timeago.format(build.build_start_time, build.build_end_time).replace(' ago', '')
-            else:
-                current_run_time = (now() - build.created_at).total_seconds()
-                progress = int(current_run_time * 100 / average_runtime)
-                if progress > 99:
-                    progress = 99
-                build.elapsed_time = timeago.format(build.created_at, now()).replace(' ago', '')
-            build.progress = progress
+            for build in pipeline_builds:
+                build.status = PipeLineStatus(build.status).name
+                build.created_at_hr = timeago.format(build.created_at, now())
+                progress = 100
+                if build.status not in [PipeLineStatus.IN_PROGRESS.name, PipeLineStatus.IN_QUEUE.name]:
+                    build.elapsed_time = timeago.format(build.build_start_time, build.build_end_time).replace(' ago',
+                                                                                                              '')
+                else:
+                    current_run_time = (now() - build.created_at).total_seconds()
+                    progress = int(current_run_time * 100 / average_runtime)
+                    if progress > 99:
+                        progress = 99
+                    build.elapsed_time = timeago.format(build.created_at, now()).replace(' ago', '')
+                build.progress = progress
 
-        context = {
-            "pipeline": pipeline,
-            "pipeline_builds": pipeline_builds
-        }
+            context = {
+                "pipeline": pipeline,
+                "pipeline_builds": pipeline_builds
+            }
 
-        return render(request, 'dashboard/pipeline/pipeline_builds.html', context=context)
+            return render(request, 'dashboard/pipeline/pipeline_builds.html', context=context)
+        else:
+            return redirect(reverse('login'))
 
     def _calculate_average_runtime(self, pipeline_builds):
         all_time = 0
@@ -227,3 +246,30 @@ class LiveLog(View):
                 return HttpResponse(dumps)
         except:
             return HttpResponse('{"text": "", "current_size": 0, "query_next": true}', content_type='application/json')
+
+
+@method_decorator(login_required, name='dispatch')
+class ProfileView(View, LoginRequiredMixin):
+    def get(self, request):
+        password_change = PasswordChangeForm(request.user)
+        return render(request, 'dashboard/profile/index.html', context={'form': password_change})
+
+    def post(self, request):
+        if {'last_name', 'first_name', 'email'} <= set(request.POST):
+            user = get_user_model().objects.get(pk=request.user.pk)
+            user.first_name = request.POST['first_name']
+            user.last_name = request.POST['last_name']
+            user.email = request.POST['email']
+            user.save()
+
+        if {'new_password1', 'new_password2', 'old_password'} <= set(request.POST):
+            user = get_user_model().objects.get(pk=request.user.pk)
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Your password was successfully updated!')
+            else:
+                return render(request, 'dashboard/profile/index.html', context={'form': password_form})
+
+        return redirect('dashboard:profile')

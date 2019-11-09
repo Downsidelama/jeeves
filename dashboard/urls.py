@@ -15,4 +15,6 @@ urlpatterns = [
     path('pipeline/<int:pk>/builds/<int:id>', views.PipeLineBuildDetailsView.as_view(), name='pipeline_build_details'),
     path('pipeline/<int:pk>/builds/<int:id>/livelog/<int:current_size>', views.LiveLog.as_view(),
          name='pipeline_build_livelog'),
+
+    path('profile/', views.ProfileView.as_view(), name='profile'),
 ]
