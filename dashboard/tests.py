@@ -189,3 +189,10 @@ class TestProfileView(TestCase):
         self.assertEquals(user.first_name, 'firstname')
         self.assertEquals(user.last_name, 'lastname')
         self.assertEquals(user.email, 'email@mail.com')
+
+    def test_password_change_is_successful(self):
+        self.client.post(reverse('dashboard:profile'),
+                         {'new_password1': 'super_secret_pwd', 'new_password2': 'super_secret_pwd', 'old_password':
+                          'test'})
+        user = get_user_model().objects.all().first()
+        self.assertTrue(user.check_password('super_secret_pwd'))
