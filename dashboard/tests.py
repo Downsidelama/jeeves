@@ -1,4 +1,5 @@
 import json
+import os
 import time
 
 from django.contrib.auth import get_user_model
@@ -60,6 +61,7 @@ class TestViews(TestCase):
                                                         installation_id=1,
                                                         log_file_name='test')
         pipeline_result.save()
+        os.makedirs('logs', exist_ok=True)
         with open('logs/test.log', 'w+') as f:
             f.write("test message")
         response = self.client.get(reverse('dashboard:pipeline_build_livelog',
