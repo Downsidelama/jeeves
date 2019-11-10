@@ -85,6 +85,20 @@
                             {% endfor %}
                             </tbody>
                         </table>
+                        <ul class="pagination" style="margin-top: 15px; margin-left: 15px">
+                            <li class="page-item"><a class="page-link"
+                                                     href="{% url 'dashboard:pipeline_builds' pipeline.pk 1 %}">First</a>
+                            </li>
+                            {% for button in pagination_buttons %}
+                                <li class="page-item{% if request.resolver_match.kwargs.page == button %} active{% endif %}">
+                                    <a class="page-link"
+                                       href="{% url 'dashboard:pipeline_builds' pipeline.pk button %}">{{ button }}</a>
+                                </li>
+                            {% endfor %}
+                            <li class="page-item"><a class="page-link"
+                                                     href="{% url 'dashboard:pipeline_builds' pipeline.pk last_page %}">Last</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

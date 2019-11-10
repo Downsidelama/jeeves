@@ -12,6 +12,7 @@ urlpatterns = [
     path('pipeline/<int:pk>/delete/', views.PipeLineDeleteView.as_view(), name='delete_pipeline'),
     path('pipeline/<int:pk>/edit/', views.PipeLineUpdateView.as_view(), name='update_pipeline'),
     path('pipeline/<int:pk>/builds/', views.PipeLineBuildsView.as_view(), name='pipeline_builds'),
+    path('pipeline/<int:pk>/builds/page/<int:page>', views.PipeLineBuildsView.as_view(), name='pipeline_builds'),
     path('pipeline/<int:pk>/builds/<int:id>', views.PipeLineBuildDetailsView.as_view(), name='pipeline_build_details'),
     path('pipeline/<int:pk>/builds/<int:id>/livelog/<int:current_size>', views.LiveLog.as_view(),
          name='pipeline_build_livelog'),
