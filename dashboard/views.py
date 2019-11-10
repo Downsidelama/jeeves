@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import re
 
@@ -140,12 +141,24 @@ class PipeLineDeleteView(View, LoginRequiredMixin):
 
 @method_decorator(login_required, name='dispatch')
 class PipeLineBuildsView(View, LoginRequiredMixin):
-    def get(self, request, pk):
+    item_per_page = 25
+
+    def get(self, request, pk, page=1):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         if pipeline.user.pk == request.user.pk:
-            pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
+            if page == 1:
+                pipeline_builds = PipeLineResult.objects.filter(pipeline=pk).order_by('-pk')[:self.item_per_page]
+            elif page < 1:
+                return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pk, 'page': 1}))
+            else:
+                pipeline_builds = PipeLineResult.objects.filter(pipeline=pk).order_by('-pk')[
+                                  self.item_per_page * (page - 1): self.item_per_page * page]
+                if pipeline_builds.count() == 0:
+                    return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pk, 'page': 1}))
 
-            average_runtime = self._calculate_average_runtime(pipeline_builds)
+            all_page, buttons = self._create_pagination(page, pk)
+
+            average_runtime = self._calculate_average_runtime(pk)
 
             for build in pipeline_builds:
                 build.status = PipeLineStatus(build.status).name
@@ -164,19 +177,38 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
 
             context = {
                 "pipeline": pipeline,
-                "pipeline_builds": pipeline_builds
+                "pipeline_builds": pipeline_builds,
+                "pagination_buttons": buttons,
+                "last_page": all_page,
             }
 
             return render(request, 'dashboard/pipeline/pipeline_builds.html', context=context)
         else:
             return redirect(reverse('login'))
 
-    def _calculate_average_runtime(self, pipeline_builds):
+    def _create_pagination(self, page, pk):
+        all_page = math.ceil(PipeLineResult.objects.filter(pipeline=pk).count() / self.item_per_page)
+        if all_page == 0:
+            all_page = 1
+        buttons = []
+        button_count = 0
+        for i in range(page - 3, page):
+            if i > 0:
+                buttons.append(i)
+                button_count += 1
+        remaining = (3 - button_count)
+        for i in range(page, min(page + 4 + remaining, all_page + 1)):
+            buttons.append(i)
+            button_count += 1
+        return all_page, buttons
+
+    def _calculate_average_runtime(self, pk):
         all_time = 0
+        pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
         filtered = pipeline_builds.filter(~Q(status=PipeLineStatus.IN_PROGRESS.value)
                                           & ~Q(status=PipeLineStatus.IN_QUEUE.value)
-                                          & ~Q(build_end_time=None) & ~Q(build_start_time=None))
-        # filtered = pipeline_builds.exclude(status=PipeLineStatus.IN_PROGRESS.value)
+                                          & ~Q(build_end_time=None) & ~Q(build_start_time=None)) \
+            .exclude(status=PipeLineStatus.IN_PROGRESS.value)
         if len(filtered) > 0:
             for build in filtered:
                 all_time += (build.updated_at - build.created_at).total_seconds()
