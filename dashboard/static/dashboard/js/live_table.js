@@ -38,7 +38,8 @@ function refresh_table() {
 
                 let elapsed_time = $("#elapsed_time-" + current_data['pk']);
                 if (elapsed_time.length) {
-                    let new_elapsed_time = "<i class=\"fe fe-clock mr-2\"></i>" + current_data['elapsed_time'];
+                    let current_elapsed_time = current_data['elapsed_time'].replace(" ago", "");
+                    let new_elapsed_time = "<i class=\"fe fe-clock mr-2\"></i> " + current_elapsed_time;
                     if (elapsed_time.html() !== new_elapsed_time) {
                         elapsed_time.html(new_elapsed_time);
                     }
@@ -46,16 +47,16 @@ function refresh_table() {
 
                 let created_at_hr = $("#created_at_hr-" + current_data['pk']);
                 if (created_at_hr.length) {
-                    let new_created_at_hr = "<i class=\"fe fe-clock mr-2\"></i>" + current_data['created_at_hr'];
+                    let new_created_at_hr = "<i class=\"fe fe-calendar mr-2\"></i> " + current_data['created_at_hr'];
                     if (created_at_hr.html() !== new_created_at_hr) {
-                        elapsed_time.html(new_created_at_hr);
+                        created_at_hr.html(new_created_at_hr);
                     }
                 }
             }
         }
     );
 
-    setTimeout(refresh_table, 1000);
+    setTimeout(refresh_table, 5000);
 }
 
 
