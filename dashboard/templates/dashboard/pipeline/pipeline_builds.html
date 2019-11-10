@@ -20,7 +20,7 @@
                                 <th>Progress (estimated)</th>
                                 <th class="text-center">Status</th>
                                 <th>Runtime</th>
-                                <th class="text-center"><i class="icon-settings"></i></th>
+{#                                <th class="text-center"><i class="icon-settings"></i></th>#}
                             </tr>
                             </thead>
                             <tbody>
@@ -62,25 +62,25 @@
                                 <div><i class="fe fe-clock mr-2"></i> {{ build.elapsed_time }}</div>
                                 <div><i class="fe fe-calendar mr-2"></i> {{ build.created_at_hr }}</div>
                             </td>
-                            <td class="text-center">
-                                <div class="item-action dropdown">
-                                    <a href="javascript:void(0)" data-toggle="dropdown" class="icon"
-                                       aria-expanded="false"><i class="fe fe-more-vertical"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end"
-                                         style="position: absolute; transform: translate3d(15px, 20px, 0px); top: 0px; left: 0px; will-change: transform;">
-                                        <a href="javascript:void(0)" class="dropdown-item"><i
-                                                class="dropdown-icon fe fe-tag"></i> Action </a>
-                                        <a href="javascript:void(0)" class="dropdown-item"><i
-                                                class="dropdown-icon fe fe-edit-2"></i> Another action </a>
-                                        <a href="javascript:void(0)" class="dropdown-item"><i
-                                                class="dropdown-icon fe fe-message-square"></i> Something else
-                                            here</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a href="javascript:void(0)" class="dropdown-item"><i
-                                                class="dropdown-icon fe fe-link"></i> Separated link</a>
-                                    </div>
-                                </div>
-                            </td>
+{#                            <td class="text-center">#}
+{#                                <div class="item-action dropdown">#}
+{#                                    <a href="javascript:void(0)" data-toggle="dropdown" class="icon"#}
+{#                                       aria-expanded="false"><i class="fe fe-more-vertical"></i></a>#}
+{#                                    <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end"#}
+{#                                         style="position: absolute; transform: translate3d(15px, 20px, 0px); top: 0px; left: 0px; will-change: transform;">#}
+{#                                        <a href="javascript:void(0)" class="dropdown-item"><i#}
+{#                                                class="dropdown-icon fe fe-tag"></i> Action </a>#}
+{#                                        <a href="javascript:void(0)" class="dropdown-item"><i#}
+{#                                                class="dropdown-icon fe fe-edit-2"></i> Another action </a>#}
+{#                                        <a href="javascript:void(0)" class="dropdown-item"><i#}
+{#                                                class="dropdown-icon fe fe-message-square"></i> Something else#}
+{#                                            here</a>#}
+{#                                        <div class="dropdown-divider"></div>#}
+{#                                        <a href="javascript:void(0)" class="dropdown-item"><i#}
+{#                                                class="dropdown-icon fe fe-link"></i> Separated link</a>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </td>#}
                             </tr>
                             {% endfor %}
                             </tbody>
