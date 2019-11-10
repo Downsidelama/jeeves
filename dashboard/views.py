@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, redirect, get_object_or_404
@@ -139,41 +140,52 @@ class PipeLineDeleteView(View, LoginRequiredMixin):
             return redirect(reverse('login'))
 
 
+def redirect_to_page_one(request, pk):
+    """Compatibility with older code"""
+    return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pk, 'page': 1}))
+
+
 @method_decorator(login_required, name='dispatch')
 class PipeLineBuildsView(View, LoginRequiredMixin):
     item_per_page = 25
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, pk, page):
+        pipeline = get_object_or_404(PipeLine, pk=pk)
+        if pipeline.user.pk == request.user.pk:
+            pipeline_builds = self._get_builds(pk, page)
+            if not pipeline_builds:
+                return HttpResponse('{"error": "Invalid parameters"}', content_type="application/json")
+            average_runtime = self._calculate_average_runtime(pk)
+            self.set_custom_attributes_in_builds(average_runtime, pipeline_builds)
+
+            pipeline_builds_json = []
+            for pipeline_build in pipeline_builds:
+                data = {
+                    'pk': pipeline_build.pk,
+                    'progress': pipeline_build.progress,
+                    'status': pipeline_build.status,
+                    'elapsed_time': pipeline_build.elapsed_time,
+                    'created_at_hr': pipeline_build.created_at_hr,
+                }
+                pipeline_builds_json.append(data)
+
+            return HttpResponse(json.dumps(pipeline_builds_json), content_type="application/json")
+        else:
+            return HttpResponse('{"error": "Invalid parameters"}', content_type="application/json")
+
     def get(self, request, pk, page=1):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         if pipeline.user.pk == request.user.pk:
-            if page == 1:
-                pipeline_builds = PipeLineResult.objects.filter(pipeline=pk).order_by('-pk')[:self.item_per_page]
-            elif page < 1:
+            pipeline_builds = self._get_builds(pk, page)
+            if not pipeline_builds:
                 return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pk, 'page': 1}))
-            else:
-                pipeline_builds = PipeLineResult.objects.filter(pipeline=pk).order_by('-pk')[
-                                  self.item_per_page * (page - 1): self.item_per_page * page]
-                if pipeline_builds.count() == 0:
-                    return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pk, 'page': 1}))
-
             all_page, buttons = self._create_pagination(page, pk)
-
             average_runtime = self._calculate_average_runtime(pk)
-
-            for build in pipeline_builds:
-                build.status = PipeLineStatus(build.status).name
-                build.created_at_hr = timeago.format(build.created_at, now())
-                progress = 100
-                if build.status not in [PipeLineStatus.IN_PROGRESS.name, PipeLineStatus.IN_QUEUE.name]:
-                    build.elapsed_time = timeago.format(build.build_start_time, build.build_end_time).replace(' ago',
-                                                                                                              '')
-                else:
-                    current_run_time = (now() - build.created_at).total_seconds()
-                    progress = int(current_run_time * 100 / average_runtime)
-                    if progress > 99:
-                        progress = 99
-                    build.elapsed_time = timeago.format(build.created_at, now()).replace(' ago', '')
-                build.progress = progress
+            self.set_custom_attributes_in_builds(average_runtime, pipeline_builds)
 
             context = {
                 "pipeline": pipeline,
@@ -185,6 +197,34 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
             return render(request, 'dashboard/pipeline/pipeline_builds.html', context=context)
         else:
             return redirect(reverse('login'))
+
+    def set_custom_attributes_in_builds(self, average_runtime, pipeline_builds):
+        for build in pipeline_builds:
+            build.status = PipeLineStatus(build.status).name
+            build.created_at_hr = timeago.format(build.created_at, now())
+            progress = 100
+            if build.status not in [PipeLineStatus.IN_PROGRESS.name, PipeLineStatus.IN_QUEUE.name]:
+                build.elapsed_time = timeago.format(build.build_start_time, build.build_end_time).replace(' ago',
+                                                                                                          '')
+            else:
+                current_run_time = (now() - build.created_at).total_seconds()
+                progress = int(current_run_time * 100 / average_runtime)
+                if progress > 99:
+                    progress = 99
+                build.elapsed_time = timeago.format(build.created_at, now()).replace(' ago', '')
+            build.progress = progress
+            build.status = build.status.title().replace('_', ' ')
+
+    def _get_builds(self, pk, page):
+        if page == 1:
+            return PipeLineResult.objects.filter(pipeline=pk).order_by('-pk')[:self.item_per_page]
+        elif page < 1:
+            return None
+        else:
+            pipeline_builds = PipeLineResult.objects.filter(pipeline=pk).order_by('-pk')[
+                              self.item_per_page * (page - 1): self.item_per_page * page]
+            if pipeline_builds.count() == 0:
+                return None
 
     def _create_pagination(self, page, pk):
         all_page = math.ceil(PipeLineResult.objects.filter(pipeline=pk).count() / self.item_per_page)
