@@ -181,7 +181,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         if pipeline.user.pk == request.user.pk:
             pipeline_builds = self._get_builds(pk, page)
-            if not pipeline_builds:
+            if pipeline_builds is None:
                 return redirect(reverse('dashboard:pipeline_builds', kwargs={'pk': pk, 'page': 1}))
             all_page, buttons = self._create_pagination(page, pk)
             average_runtime = self._calculate_average_runtime(pk)
@@ -223,8 +223,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
         else:
             pipeline_builds = PipeLineResult.objects.filter(pipeline=pk).order_by('-pk')[
                               self.item_per_page * (page - 1): self.item_per_page * page]
-            if pipeline_builds.count() == 0:
-                return None
+            return pipeline_builds
 
     def _create_pagination(self, page, pk):
         all_page = math.ceil(PipeLineResult.objects.filter(pipeline=pk).count() / self.item_per_page)

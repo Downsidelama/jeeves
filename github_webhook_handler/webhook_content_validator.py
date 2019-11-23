@@ -26,8 +26,6 @@ class HMACValidator:
     Implementation help: https://en.wikipedia.org/wiki/HMAC"""
 
     block_size = 64  # SHA-1 block size
-    translator_5c = bytes((x ^ 0x5c) for x in range(256))
-    translator_36 = bytes((x ^ 0x36) for x in range(256))
 
     def __init__(self, key, message, hash):
         self.key = key
