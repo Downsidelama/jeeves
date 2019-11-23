@@ -7,7 +7,8 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-from dashboard.models import PipeLine
+from dashboard.models import PipeLine, PipeLineResult
+from dashboard.pipeline_status import PipeLineStatus
 from pipelinehandler.pipeline_runner import PipeLineRunner
 
 
@@ -37,9 +38,18 @@ class GithubPipeLineHandlerView(View):
             return HttpResponse("Error")
 
 
-
 class DashboardPipeLineHandlerView(View):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         PipeLineRunner(pipeline).run_pipeline()
+        return redirect(pipeline)
+
+
+class PipeLineRestartView(View):
+    def get(self, request, pk):
+        """Restarts the given build."""
+        pipeline_result = get_object_or_404(PipeLineResult, pk=pk)
+        pipeline = pipeline_result.pipeline
+        if pipeline_result.status not in [PipeLineStatus.IN_PROGRESS.value, PipeLineStatus.IN_QUEUE.value]:
+            PipeLineRunner(pipeline).restart(pipeline_result)
         return redirect(pipeline)

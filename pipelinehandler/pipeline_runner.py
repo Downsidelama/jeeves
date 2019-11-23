@@ -3,6 +3,8 @@ import os
 import subprocess
 import time
 import uuid
+import pickle
+import base64
 from subprocess import Popen
 from concurrent.futures.thread import ThreadPoolExecutor
 
@@ -152,3 +154,18 @@ class PipeLineRunner:
         client = github3.GitHub()
         client.login_as_app_installation(GITHUB_PRIVATE_KEY.encode(), GITHUB_APP_IDENTIFIER, self.installation_id)
         return client
+
+    def restart(self, pipeline_result: PipeLineResult):
+        try:
+            script = PipeLineScriptParser().parse(pipeline_result.config)
+
+            pipeline_results = [pipeline_result]
+            futures = [
+                self.executor.submit(self.run_docker_process, pipeline_result.command, pipeline_result)]
+
+            if self.pipeline.is_github_pipeline:
+                self.watchers.submit(self.start_watcher, pipeline_results, futures)
+        except ValueError as e:
+            logging.exception("Error during restart!")
+            if self.pipeline.is_github_pipeline:
+                self.set_ci_status(status=GithubEventStatus.FAILURE, description=str(e))

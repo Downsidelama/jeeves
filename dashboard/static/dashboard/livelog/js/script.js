@@ -71,10 +71,10 @@ function refresh_log() {
             current_size = data['current_size'];
             if (data['text'].length > 0) {
                 let text = data['text'];
-                while (text.includes('\r\n')) {
-                    let line_break = text.indexOf('\r\n');
+                while (text.includes('\n')) {
+                    let line_break = text.indexOf('\n');
                     let line = text.substr(0, line_break);
-                    text = text.substr(line_break + 2, text.length);
+                    text = text.substr(line_break + 1, text.length);
                     add_to_element(line);
                     current_line++;
                 }
@@ -99,6 +99,10 @@ function refresh_log() {
     );
 }
 
+function emptyLog() {
+    $("#log-body").html("<div class=\"scroll-log\" onclick=\"toggle_auto_scroll()\">Auto-scroll: off</div>");
+}
+
 function refresh_status() {
     $.ajax({
         type: 'POST',
@@ -106,10 +110,9 @@ function refresh_status() {
         dataType: 'json'
     }).done(
         function (data) {
-            console.log(data);
-            if (data['query_next'] === false) {
-                query_next = false;
-            }
+            // if (data['query_next'] === false) {
+            //     query_next = false;
+            // }
             let runtime = data['runtime'].replace("just now", "1 second");
             $("#runtime").html("<i class=\"fe fe-clock\"></i> Ran for " + runtime);
             $("#start_time").html("<i class=\"fe fe-calendar\"></i> " + data['created_at_hr']);
@@ -125,8 +128,15 @@ function refresh_status() {
             if (!$buildCard.hasClass(build_card_class)) {
                 $buildCard.removeClass("success-card").removeClass("in-progress-card")
                     .removeClass("error-card").addClass(build_card_class);
+                if (build_card_class == "in-progress-card") {
+                    emptyLog();
+                    current_size = 0;
+                    current_line = 1;
+                    query_next_status = true;
+                    refresh_log();
+                }
             }
-            if(query_next === true) {
+            if (query_next === true) {
                 setTimeout(refresh_status, 1000);
             }
         }

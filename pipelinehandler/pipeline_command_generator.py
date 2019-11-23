@@ -24,7 +24,7 @@ class PipeLineCommandGenerator:
             version = current_version + '-alpine'
             commands_list = self._generate_pre_commands() + self.parsed_script['script']
             commands = ' && '.join(commands_list)
-            command = f"docker run --name {uid} -it --rm {tag_name}:{version} /bin/sh -c".split(' ')
+            command = f"docker run --name {uid} -i --rm {tag_name}:{version} /bin/sh -c".split(' ')
             command.append(commands)
             cmds.append(command)
         return cmds
