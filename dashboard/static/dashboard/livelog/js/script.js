@@ -143,6 +143,13 @@ function refresh_status() {
     );
 }
 
+function restart() {
+    $.ajax({
+        type: 'GET',
+        url: restart_url
+    });
+}
+
 requirejs(['jquery'], function ($) {
     $(document).ready(
         function () {

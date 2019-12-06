@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -38,7 +39,7 @@ class GithubPipeLineHandlerView(View):
             return HttpResponse("Error")
 
 
-class DashboardPipeLineHandlerView(View):
+class DashboardPipeLineHandlerView(View, LoginRequiredMixin):
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         PipeLineRunner(pipeline).run_pipeline()
