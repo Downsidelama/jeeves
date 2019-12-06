@@ -8,3 +8,4 @@ pyyaml
 social-auth-app-django
 timeago
 urllib3
+django-picklefield

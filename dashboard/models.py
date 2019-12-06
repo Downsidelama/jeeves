@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from picklefield.fields import PickledObjectField
 
 from dashboard.pipeline_status import PipeLineStatus
 from jeeves import settings
@@ -29,7 +30,7 @@ class PipeLineResult(models.Model):
     triggered_by = models.TextField(default="")
     version = models.IntegerField(default=1)
     subversion = models.IntegerField(default=1)
-    command = models.TextField(default="")
+    command = PickledObjectField(null=True)
     language = models.TextField()
     status = models.IntegerField(default=PipeLineStatus.IN_PROGRESS.value)
     log = models.TextField(default="")

@@ -307,9 +307,9 @@ class LiveLog(View):
             with open(os.path.join(settings.BASE_DIR, f'logs/{pipeline_result.log_file_name}.log'), 'rb') as f:
                 f.seek(current_size)
                 t = f.read().decode()
-                t = re.sub(r'\x1b\[[?]?[0-9;]*[mKhl]', '', t, flags=re.IGNORECASE)
-                for chars in chars_to_filter:
-                    t = t.replace(chars, '')
+                #t = re.sub(r'\x1b\[[?]?[0-9;]*[mKhl]', '', t, flags=re.IGNORECASE)
+                #for chars in chars_to_filter:
+                #    t = t.replace(chars, '')
                 current_size = f.tell()
                 dumps = json.dumps({"text": f"{t}", "current_size": current_size,
                                     "query_next": pipeline_result.status not in [PipeLineStatus.SUCCESS.value,
