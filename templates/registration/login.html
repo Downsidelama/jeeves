@@ -48,13 +48,18 @@
             <div class="row">
                 <div class="col col-login mx-auto">
                     <div class="text-center mb-6">
-                        <img src="{% static 'dashboard/' %}" class="h-6" alt="">
+                        <img src="{% static 'dashboard/logo.png' %}" class="h-6" alt="">
                     </div>
                     {% if 'successful_registration' in request.GET %}
                         <div class="alert alert-success" role="alert">
                             You have successfully registered, now you can log in!
                         </div>
                     {% endif %}
+                    {% for field, error in form.errors.items %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error.as_text }}
+                        </div>
+                    {% endfor %}
                     <form class="card" action="{% url 'login' %}" method="post">
                         {% csrf_token %}
                         <div class="card-body p-6">
@@ -63,6 +68,11 @@
                                 <label class="form-label" for="username">Username</label>
                                 <input type="text" name="{{ form.username.name }}" class="form-control" id="username"
                                        aria-describedby="emailHelp" placeholder="Username">
+                                {% if form.username.errors %}
+                                    {% for error in form.username.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                             <div class="form-group">
                                 <label class="form-label" for="password">
@@ -71,6 +81,11 @@
                                 </label>
                                 <input type="password" class="form-control" id="password" placeholder="Password"
                                        name="{{ form.password.name }}">
+                                {% if form.password.errors %}
+                                    {% for error in form.password.errors %}
+                                        <div class="invalid-feedback">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
                             </div>
                             {# CBA :) #}
                             {#                  <div class="form-group">#}
