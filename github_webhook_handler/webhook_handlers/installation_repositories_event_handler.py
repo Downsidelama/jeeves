@@ -8,6 +8,7 @@ from jeeves import settings
 
 
 class InstallationRepositoriesEventHandler(GitHubEventHandler):
+    """Handles the InstallationRepositories event"""
     user_model = settings.AUTH_USER_MODEL
 
     def __init__(self, payload: dict, response: dict):

@@ -1,8 +1,11 @@
+import traceback
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
 from dashboard.models import PipeLine
+from pipelinehandler.pipeline_script_parser import PipeLineScriptParser
 
 
 class PipeLineModelForm(forms.ModelForm):
@@ -20,7 +23,7 @@ class PipeLineModelForm(forms.ModelForm):
 
     script = forms.CharField(required=False, widget=forms.Textarea(attrs={
         'novalidate': '',
-    }))
+    }), error_messages={'invalid_script': "The script is invalid!"})
 
     class Meta:
         model = PipeLine
@@ -29,6 +32,19 @@ class PipeLineModelForm(forms.ModelForm):
         labels = {
             'repo_url': "Repository URL"
         }
+
+    def is_valid(self):
+        valid = super(PipeLineModelForm, self).is_valid()
+        if not valid:
+            return False
+
+        try:
+            PipeLineScriptParser().parse(script=self.data['script'])
+        except (ValueError, AttributeError):
+            traceback.print_exc()
+            self.add_error('script', 'This script is invalid!')
+            return False
+        return True
 
 
 class CustomUserCreationForm(UserCreationForm):

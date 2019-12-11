@@ -15,7 +15,7 @@ class TestPipeLineScriptParser(TestCase):
 
     def test_yaml_has_invalid_key_raises_exception(self):
         with self.assertRaises(ValueError):
-            PipeLineScriptParser().parse("before_install: true\r\nfuck_me: true")
+            PipeLineScriptParser().parse("before_install: true\r\nduck_me: true")
 
     def test_yaml_is_correct_returns_parsed_dict_with_correct_values(self):
         expected_results = {

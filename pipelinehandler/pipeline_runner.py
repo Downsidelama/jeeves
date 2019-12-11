@@ -19,6 +19,8 @@ from pipelinehandler.pipeline_script_parser import PipeLineScriptParser
 
 
 class PipeLineRunner:
+    """Class to manage the execution of pipelines."""
+
     watchers = ThreadPoolExecutor(max_workers=10)
     executor = ThreadPoolExecutor(max_workers=3)
 

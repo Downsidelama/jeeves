@@ -8,6 +8,7 @@ from github_webhook_handler.webhook_handlers.utils.config_file_retriever import 
 
 
 class PushEventHandler(BuildEventHandler):
+    """Handles the Push event."""
     def __init__(self, payload, response: dict):
         super().__init__(payload, response)
 

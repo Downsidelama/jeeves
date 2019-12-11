@@ -7,6 +7,7 @@ from github_webhook_handler.webhook_handlers import GitHubEventHandler
 
 
 class InstallationEventHandler(GitHubEventHandler):
+    """Handles the installation event"""
 
     def __init__(self, payload, response: dict):
         super().__init__(payload, response)
@@ -31,7 +32,8 @@ class InstallationEventHandler(GitHubEventHandler):
                     else:
                         logging.debug("This repository is already in the database.")
             elif action == 'deleted':
-                pass  # TODO: Implement this too
+                # May be obsolete, since GitHub won't send any more webhooks after uninstall.
+                pass
 
         except KeyError:
             logging.exception("Invalid payload", exc_info=True)

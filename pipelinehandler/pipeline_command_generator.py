@@ -3,6 +3,7 @@ import uuid
 
 
 class PipeLineCommandGenerator:
+    """Generates the commands which run in the docker container from the inputs given by the user."""
 
     def __init__(self, parsed_script, repository, branch='master', revision="", number=-1):
         self.parsed_script = parsed_script
