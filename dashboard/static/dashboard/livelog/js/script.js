@@ -128,7 +128,7 @@ function refresh_status() {
             if (!$buildCard.hasClass(build_card_class)) {
                 $buildCard.removeClass("success-card").removeClass("in-progress-card")
                     .removeClass("error-card").addClass(build_card_class);
-                if (build_card_class == "in-progress-card") {
+                if (build_card_class === "in-progress-card") {
                     emptyLog();
                     current_size = 0;
                     current_line = 1;
