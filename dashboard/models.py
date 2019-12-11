@@ -9,6 +9,7 @@ User = settings.AUTH_USER_MODEL
 
 
 class PipeLine(models.Model):
+    """Model used to represent the PipeLine data."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.TextField(default="")
@@ -26,6 +27,7 @@ class PipeLine(models.Model):
 
 
 class PipeLineResult(models.Model):
+    """Model used to represent the PipeLineResult data."""
     pipeline = models.ForeignKey(PipeLine, on_delete=models.CASCADE, default=1)
     triggered_by = models.TextField(default="")
     version = models.IntegerField(default=1)

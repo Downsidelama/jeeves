@@ -14,7 +14,7 @@ from pipelinehandler.pipeline_runner import PipeLineRunner
 
 
 class GithubPipeLineHandlerView(View):
-
+    """Endpoint to the GitHub webhooks"""
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
@@ -40,6 +40,7 @@ class GithubPipeLineHandlerView(View):
 
 
 class DashboardPipeLineHandlerView(View, LoginRequiredMixin):
+    """Endpoint for local pipeline start requests"""
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         PipeLineRunner(pipeline).run_pipeline()
@@ -47,6 +48,7 @@ class DashboardPipeLineHandlerView(View, LoginRequiredMixin):
 
 
 class PipeLineRestartView(View):
+    """Endpoint for AJAX calls to restart a given build"""
     def get(self, request, pk):
         """Restarts the given build."""
         pipeline_result = get_object_or_404(PipeLineResult, pk=pk)

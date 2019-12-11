@@ -14,6 +14,7 @@ from dashboard.models import PipeLine
 
 
 class GitHubEventHandler:
+    """Base class for GitHub events."""
     social_auth_extra_info = r'{{"auth_time": {auth_time}, "id": {id}, "expires": null, "login": "{login}", ' \
                              '"access_token": "", "token_type": "bearer"}} '
     executor = ThreadPoolExecutor(max_workers=3)

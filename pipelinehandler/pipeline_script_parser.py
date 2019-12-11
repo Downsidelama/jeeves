@@ -4,6 +4,8 @@ import yaml
 
 
 class PipeLineScriptParser:
+    """Parses the YAML script and also validates it's content."""
+
     current_directory = os.path.dirname(__file__)
 
     def parse(self, script):

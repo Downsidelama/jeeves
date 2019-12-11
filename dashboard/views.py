@@ -26,10 +26,12 @@ import timeago
 
 from jeeves import settings
 
+# Console characters to filter out, might be obsolete without the -t parameter in docker run.
 chars_to_filter = ['[0K', '[?25l ', '[K', '[?25h', '', '[?25l']
 
 
 class IndexView(LoginRequiredMixin, View):
+    """Front page view"""
     def get(self, request):
         pipelines = PipeLine.objects.filter(user=request.user)
         context = {'pipelines': pipelines}
@@ -37,6 +39,7 @@ class IndexView(LoginRequiredMixin, View):
 
 
 class RegisterView(View):
+    """Registration handling view"""
     def get(self, request):
         form = CustomUserCreationForm()
         return render(request, 'dashboard/registration.html', context={"form": form})
@@ -50,8 +53,8 @@ class RegisterView(View):
             return render(request, 'dashboard/registration.html', context={"form": form})
 
 
-# TODO: Don't allow incorrect .yamls!
 class PipeLineCreateView(View, LoginRequiredMixin):
+    """View to create pipelines"""
     def get(self, request):
         form = PipeLineModelForm()
         context = {'form': form, 'title': 'Add new pipeline'}
@@ -68,8 +71,8 @@ class PipeLineCreateView(View, LoginRequiredMixin):
         return render(request, 'dashboard/pipeline/pipeline_form.html', context)
 
 
-# TODO: Don't allow incorrect .yamls!
 class PipeLineUpdateView(View, LoginRequiredMixin):
+    """View to update pipelines (uses the same template as create view)"""
     def get(self, request, pk):
         model = get_object_or_404(PipeLine, pk=pk)
         if request.user.pk != model.user.pk:
@@ -93,6 +96,7 @@ class PipeLineUpdateView(View, LoginRequiredMixin):
 
 
 class PipeLineDetailsView(View, LoginRequiredMixin):
+    """View to list the details of individual pipelines."""
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         if pipeline.user.pk == request.user.pk:
@@ -119,6 +123,7 @@ class PipeLineDetailsView(View, LoginRequiredMixin):
 
 @method_decorator(login_required, name='dispatch')
 class PipeLineDeleteView(View, LoginRequiredMixin):
+    """View to delete pipelines."""
     def get(self, request, pk):
         pipeline = get_object_or_404(PipeLine, pk=pk, user=request.user)
         if pipeline.user.pk == request.user.pk:
@@ -147,10 +152,12 @@ def redirect_to_page_one(request, pk):
 
 @method_decorator(login_required, name='dispatch')
 class PipeLineBuildsView(View, LoginRequiredMixin):
+    """List of the pipelines for the project."""
     item_per_page = 25
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
+        # Allow AJAX requests without CSRF protection
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, pk, page):
@@ -199,6 +206,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
             return redirect(reverse('login'))
 
     def set_custom_attributes_in_builds(self, average_runtime, pipeline_builds):
+        """Calculate values that needs to be displayed based on information stored in the DB."""
         for build in pipeline_builds:
             build.status = PipeLineStatus(build.status).name
             build.created_at_hr = timeago.format(build.created_at, now())
@@ -216,6 +224,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
             build.status = build.status.title().replace('_', ' ')
 
     def _get_builds(self, pk, page):
+        """Gets the builds on page :page"""
         if page == 1:
             return PipeLineResult.objects.filter(pipeline=pk).order_by('-pk')[:self.item_per_page]
         elif page < 1:
@@ -226,6 +235,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
             return pipeline_builds
 
     def _create_pagination(self, page, pk):
+        """Returns the pagination list"""
         all_page = math.ceil(PipeLineResult.objects.filter(pipeline=pk).count() / self.item_per_page)
         if all_page == 0:
             all_page = 1
@@ -242,6 +252,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
         return all_page, buttons
 
     def _calculate_average_runtime(self, pk):
+        """Calculates the average runtime based on finished pipeline results."""
         all_time = 0
         pipeline_builds = PipeLineResult.objects.filter(pipeline=pk)
         filtered = pipeline_builds.filter(~Q(status=PipeLineStatus.IN_PROGRESS.value)
@@ -258,6 +269,7 @@ class PipeLineBuildsView(View, LoginRequiredMixin):
 
 
 class PipeLineBuildDetailsView(View):
+    """Displays a detailed pipeline build page."""
     def get(self, request, pk, id):
         pipeline, pipeline_result = self.get_pipeline_details(id, pk)
         context = {
@@ -298,6 +310,7 @@ class PipeLineBuildDetailsView(View):
 
 
 class LiveLog(View):
+    """View for AJAX requests"""
     def get(self, request, pk, id, current_size):
         pipeline = get_object_or_404(PipeLine, pk=pk)
         pipeline_result = get_object_or_404(PipeLineResult, pk=id)
@@ -321,6 +334,7 @@ class LiveLog(View):
 
 @method_decorator(login_required, name='dispatch')
 class ProfileView(View, LoginRequiredMixin):
+    """View for modifying profile information"""
     def get(self, request):
         password_change = PasswordChangeForm(request.user)
         return render(request, 'dashboard/profile/index.html', context={'form': password_change})

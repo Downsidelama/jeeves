@@ -8,6 +8,7 @@ from github_webhook_handler.webhook_handlers.utils.config_file_retriever import 
 
 
 class PullRequestEventHandler(BuildEventHandler):
+    """Handles the PullRequest event"""
 
     def __init__(self, payload, response):
         super().__init__(payload, response)
@@ -18,6 +19,7 @@ class PullRequestEventHandler(BuildEventHandler):
             self.send_to_worker()
 
     def send_to_worker(self):
+        """Sends the job to a worker."""
         config_file_content = ConfigFileRetriever() \
             .get_push_style(self.payload['pull_request']['head']['sha'],
                             self.payload['pull_request']['head']['user']['login'],

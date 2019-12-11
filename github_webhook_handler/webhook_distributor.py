@@ -9,6 +9,9 @@ from . import webhook_handlers
 
 
 class WebhookDistributor:
+    """Distributes the incoming webhooks to the correct handler.
+    Validates the content beforehand."""
+
     handlers = {
         'installation': webhook_handlers.InstallationEventHandler,
         'installation_repositories': webhook_handlers.InstallationRepositoriesEventHandler,
