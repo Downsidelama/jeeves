@@ -7,6 +7,7 @@ class PipeLineScriptParser:
     """Parses the YAML script and also validates it's content."""
 
     current_directory = os.path.dirname(__file__)
+    mandatory_keys = ['script', 'language']
 
     def parse(self, script):
         try:
@@ -17,12 +18,14 @@ class PipeLineScriptParser:
 
                 if not (set(user_script.keys()) <= set(allowed_components.keys())):
                     """Check if there is more root level keys than allowed."""
-                    raise ValueError("Invalid YAML.")
+                    raise ValueError("Unexpected key(s) in YAML.")
                 self.validate_yaml(allowed_components, user_script)
+                self.check_language_consistency(user_script)
+                self.check_mandatory_keys(user_script)
 
                 return user_script
             else:
-                raise ValueError("Invalid YAML.")
+                raise ValueError("Script is empty.")
         except yaml.YAMLError as e:
             raise ValueError(str(e))
 
@@ -35,7 +38,7 @@ class PipeLineScriptParser:
                 if isinstance(user_script[key], list):
                     if allowed_components[key] is not True:
                         if not (set(user_script[key]) <= set(allowed_components[key])):
-                            raise ValueError("Invalid YAML. Key: {}".format(key))
+                            raise ValueError("Unexpected list item in key: {}".format(key))
                 elif isinstance(user_script[key], dict):
                     if not (user_script[key].keys() <= allowed_components[key].keys()):
                         raise ValueError("Invalid YAML. Key: {}".format(key))
@@ -44,3 +47,15 @@ class PipeLineScriptParser:
                     if allowed_components[key] is not True:
                         if user_script[key] not in allowed_components[key]:
                             raise ValueError("Invalid YAML. Key: {}".format(key))
+
+    def check_language_consistency(self, user_script):
+        if "language" in user_script:
+            if user_script["language"] not in user_script:
+                raise ValueError("Inconsistent language usage.")
+        else:
+            raise ValueError("Language key is not present.")
+
+    def check_mandatory_keys(self, user_script):
+        for key in self.mandatory_keys:
+            if key not in user_script:
+                raise ValueError(f"Key not present: {key}")

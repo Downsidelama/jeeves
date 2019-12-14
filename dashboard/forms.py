@@ -40,9 +40,9 @@ class PipeLineModelForm(forms.ModelForm):
 
         try:
             PipeLineScriptParser().parse(script=self.data['script'])
-        except (ValueError, AttributeError):
+        except (ValueError, AttributeError) as e:
             traceback.print_exc()
-            self.add_error('script', 'This script is invalid!')
+            self.add_error('script', str(e))
             return False
         return True
 
