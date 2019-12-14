@@ -76,7 +76,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
         repo_url.send_keys('https://github.com/LableOrg/java-maven-junit-helloworld')
 
         script = self.browser.find_element_by_css_selector('.CodeMirror textarea')
-        script.send_keys('language: java')
+        script.send_keys(('language: java\n'
+                          'java:\n'
+                          '- "8"\n'
+                          'script:\n'))
 
         send_button = self.browser.find_element_by_tag_name('button')
         send_button.click()
