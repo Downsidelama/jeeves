@@ -19,12 +19,15 @@ class TestPipeLineScriptParser(TestCase):
 
     def test_yaml_is_correct_returns_parsed_dict_with_correct_values(self):
         expected_results = {
-            'before_install': 'pip install -r requirements.txt',
+            'language': 'python',
+            'python': ["3.7"],
             'script': ['python unittest discover', 'python something'],
             'after_install': 'coverage',
         }
 
-        input_yaml = 'before_install: "pip install -r requirements.txt"\r\n' \
+        input_yaml = 'language: python\r\n' \
+                     'python:\r\n' \
+                     '- "3.7"\r\n' \
                      'script:\r\n' \
                      '  - "python unittest discover"\r\n' \
                      '  - "python something"\r\n' \
