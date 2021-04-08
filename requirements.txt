@@ -2,7 +2,7 @@ PyJWT
 pygithub
 python-dotenv
 github3.py
-Django==2.2.13
+Django==2.2.20
 selenium
 pyyaml
 social-auth-app-django
